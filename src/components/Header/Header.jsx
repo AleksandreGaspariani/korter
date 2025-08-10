@@ -78,7 +78,9 @@ const Header = () => {
             <button className="flex items-center bg-gray-900 text-white px-3 py-1 rounded hover:bg-gray-800">
               <FaPlus className="mr-1" /> დამატება
             </button>
-            <button className="bg-gray-100 px-3 py-1 rounded hover:bg-gray-200">შესვლა</button>
+            <Link to='/admin-panel'>
+              <button className="bg-gray-100 px-3 py-1 rounded hover:bg-gray-200">შესვლა</button>
+            </Link>
             <FaHeart className="cursor-pointer hover:text-blue-500" />
             <FaGlobe className="cursor-pointer hover:text-blue-500" />
             <div className="flex items-center space-x-1">
