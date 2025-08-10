@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaPhone, FaRegCommentDots, FaHeart } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const properties = [
   {
@@ -63,10 +64,10 @@ const PropertyCard = ({ property }) => {
 
 const PropertyCardGrid = () => {
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto py-8 px-4 md:px-12">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">პოპულარული საცხოვრებელი კომპლექსები</h2>
-        <a href="/projects" className="text-sm text-blue-500 hover:underline">ყველა პროექტი</a>
+        <Link to={'/new-buildings'} className="text-sm text-blue-500 hover:underline">ყველა პროექტი</Link>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         {properties.map((property, idx) => (

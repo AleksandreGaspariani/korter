@@ -1,71 +1,97 @@
-import React from 'react'
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom"
+import { Building2, Home, MapPin, Key, Users, TrendingUp } from "lucide-react"
 
 const PromotionalSection = () => {
-
-    const carouselItems = [
-        { title: "საცხოვრებელი კომპლექსები", count: "541 მშენებარე", icon: "🏢" },
-        { title: "იყიდება ბინები", count: "16 437 ბინა", icon: "📦" },
-        { title: "კოტეჯები", count: "24 კოტეჯი", icon: "🏠" },
-        { title: "სახლების გაყიდვა", count: "583 სახლი", icon: "🏡" },
-        { title: "ქირავდება ბინები", count: "27 445 ბინა", icon: "🛋️" },
-        { title: "ქირავდება სახლები", count: "774 სახლი", icon: "🪟" },
-    ];
+  const carouselItems = [
+    { title: "საცხოვრებელი კომპლექსები", count: "541 მშენებარე", icon: Building2, color: "bg-blue-100 text-blue-600" },
+    { title: "იყიდება ბინები", count: "16,437 ბინა", icon: Home, color: "bg-indigo-100 text-indigo-600" },
+    { title: "კოტეჯები", count: "24 კოტეჯი", icon: Home, color: "bg-cyan-100 text-cyan-600" },
+    { title: "სახლების გაყიდვა", count: "583 სახლი", icon: MapPin, color: "bg-sky-100 text-sky-600" },
+    { title: "ქირავდება ბინები", count: "27,445 ბინა", icon: Key, color: "bg-blue-100 text-blue-600" },
+    { title: "ქირავდება სახლები", count: "774 სახლი", icon: Users, color: "bg-indigo-100 text-indigo-600" },
+  ]
 
   return (
-    <div className="bg-white py-6 px-4 md:px-12">
+    <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4 md:px-12">
       {/* Top section */}
-      <div className="grid md:grid-cols-2 gap-4 mb-6">
-        {/* Left Card */}
-        <div className="bg-orange-500 rounded-xl p-6 text-white flex flex-col justify-between relative overflow-hidden">
-            <div className="px-8 py-12 z-10 relative">
-                <h2 className="text-2xl font-bold mb-4">ახალი აშენებული კომპლექსები და ბინები თბილისში</h2>
-                <button className="bg-white text-orange-500 font-semibold py-2 px-4 rounded shadow hover:bg-gray-100 transition">
-                    <Link to="/map">რუკაზე ნახვა</Link>
-                </button>
+      <div className="grid md:grid-cols-2 gap-6 mb-8">
+        {/* Left Card - Main Promotional */}
+        <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-700 rounded-2xl p-8 text-white flex flex-col justify-between relative overflow-hidden shadow-xl">
+          <div className="relative z-10">
+            <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-full px-3 py-1 text-sm font-medium mb-4">
+              <TrendingUp className="w-4 h-4 mr-2" />
+              ახალი შეთავაზებები
             </div>
-            <img
-                src="https://korter.ge/images/banners/map-banner-illustration.webp"
-                alt=""
-                className="absolute right-[-60px] bottom-[-40px] w-56 h-56 object-contain pointer-events-none select-none"
-                style={{ zIndex: 1 }}
-                draggable="false"
-            />
+            <h2 className="text-2xl md:text-3xl font-bold mb-4 leading-tight">
+              ახალი აშენებული კომპლექსები და ბინები თბილისში
+            </h2>
+            <p className="text-blue-100 mb-6 text-sm md:text-base">
+              აღმოაჩინეთ საუკეთესო უძრავი ქონება ჩვენს ინტერაქტიულ რუკაზე
+            </p>
+            <Link to="/map">
+              <button className="bg-white text-blue-700 font-semibold py-3 px-6 rounded-xl shadow-lg hover:bg-blue-50 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                რუკაზე ნახვა
+              </button>
+            </Link>
+          </div>
+
+          {/* Decorative elements */}
+          <div className="absolute top-4 right-4 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+          <div className="absolute bottom-4 right-8 w-24 h-24 bg-indigo-400/20 rounded-full blur-xl"></div>
+          <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-gradient-to-t from-indigo-500/30 to-transparent rounded-full"></div>
         </div>
 
-        {/* Right Card */}
-        <div className="bg-gray-50 rounded-xl p-6 flex flex-col justify-between">
-            <h2 className="text-lg text-gray-900 font-semibold mb-2">
+        {/* Right Card - Property Listing */}
+        <div className="bg-white rounded-2xl p-8 flex flex-col justify-between shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
+          <div>
+            <div className="inline-flex items-center bg-blue-100 text-blue-700 rounded-full px-3 py-1 text-sm font-medium mb-4">
+              <Building2 className="w-4 h-4 mr-2" />
+              გამყიდველებისთვის
+            </div>
+            <h2 className="text-xl md:text-2xl text-gray-900 font-bold mb-3">
               გსურთ ბინის, სახლის ან ნაკვეთის გაყიდვა?
             </h2>
-            <p className="text-lg text-gray-600 mb-4">
-              განათავსეთ უფასოდ ქონება Korter-ზე და სარგებლეთ მომგებიანი მახასიათებლებით
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              განათავსეთ უფასოდ ქონება Homeinfo-ზე და სარგებლეთ მომგებიანი მახასიათებლებით
             </p>
-            <div className='w-100'>
-                <button className="bg-gray-900 text-white py-2 px-4 rounded hover:bg-black transition">
-                    + ქონების დამატება
-                </button>
-            </div>
           </div>
+          <div>
+            <button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-xl">
+              + ქონების დამატება
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Carousel Section */}
       <div className="relative">
-        <div className="overflow-x-auto scrollbar-hide">
-          <div className="flex space-x-4 px-1 md:px-2">
-            {carouselItems.map((item, index) => (
-              <div key={index} className="min-w-[190px] bg-white border border-gray-200 rounded-lg shadow-sm p-4 hover:shadow transition">
-                <div className="text-3xl mb-2">{item.icon}</div>
-                <h4 className="font-semibold text-gray-800 text-sm">{item.title}</h4>
-                <p className="text-xs text-gray-500 mt-1">{item.count}</p>
-              </div>
-            ))}
+        <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">კატეგორიები</h3>
+        {/* Enhanced gradient masks */}
+        <div className="pointer-events-none absolute top-0 left-0 w-16 h-full bg-gradient-to-r from-blue-50 via-blue-50/80 to-transparent z-0" />
+        <div className="pointer-events-none absolute top-0 right-0 w-16 h-full bg-gradient-to-l from-blue-50 via-blue-50/80 to-transparent z-0" />
+        <div className="overflow-x-auto scrollbar-hide relative z-10">
+          <div className="flex space-x-4 px-2 pb-2">
+            {carouselItems.map((item, index) => {
+              const IconComponent = item.icon
+              return (
+                <div
+                  key={index}
+                  className="min-w-[200px] bg-white rounded-2xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 cursor-pointer group"
+                >
+                  <div
+                    className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${item.color} group-hover:scale-110 transition-transform duration-300`}
+                  >
+                    <IconComponent className="w-6 h-6" />
+                  </div>
+                  <h4 className="font-bold text-gray-900 text-sm mb-2 group-hover:text-blue-700 transition-colors">
+                    {item.title}
+                  </h4>
+                  <p className="text-xs text-gray-500 font-medium">{item.count}</p>
+                </div>
+              )
+            })}
           </div>
         </div>
-
-        {/* Gradient mask for disappearing border effect */}
-        <div className="pointer-events-none absolute top-0 left-0 w-10 h-full bg-gradient-to-r from-white via-white to-transparent" />
-        <div className="pointer-events-none absolute top-0 right-0 w-10 h-full bg-gradient-to-l from-white via-white to-transparent" />
       </div>
     </div>
   )

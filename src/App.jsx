@@ -5,6 +5,7 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import Routes from './components/Router/Routes'
 import Header from './components/Header/Header'
+import Footer from './components/Footer/Footer'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -15,6 +16,7 @@ function App() {
       <Header />
       <Routes />
       <Outlet />
+      <Footer />
     </BrowserRouter>
   )
 }

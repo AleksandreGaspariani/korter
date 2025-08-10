@@ -70,9 +70,9 @@ const agents = [
 
 const AgentsSection = () => {
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="container mx-auto py-8 px-4 md:px-12">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">ახალი აგენტები Korter-ზე</h2>
+        <h2 className="text-2xl font-bold">ახალი აგენტები Homeinfo-ზე</h2>
         <a href="#" className="text-sm text-blue-500 hover:underline">ყველა უძრავი ქონების აგენტი</a>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
