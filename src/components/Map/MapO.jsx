@@ -37,6 +37,9 @@ const MapO = () => {
   const popupRef = useRef();
   const [popupContent, setPopupContent] = useState('');
   const [popupCoord, setPopupCoord] = useState(null);
+  const [showMarkerModal, setShowMarkerModal] = useState(false);
+  const [newMarkerCoords, setNewMarkerCoords] = useState(null);
+  const [markerForm, setMarkerForm] = useState({ image: '', title: '', desc: '' });
 
   // Initialize map
   useEffect(() => {
@@ -95,10 +98,13 @@ const MapO = () => {
       element: popupRef.current,
       autoPan: true,
       autoPanAnimation: { duration: 250 },
+      positioning: 'bottom-center',
+      offset: [0, -32], // move popup above marker
+      stopEvent: false,
     });
     map.addOverlay(popup);
 
-    // Marker click handler
+    // Marker click handler (for navigation)
     map.on('singleclick', function (evt) {
       let found = false;
       map.forEachFeatureAtPixel(evt.pixel, function (feature) {
@@ -118,6 +124,14 @@ const MapO = () => {
       if (!found) {
         popup.setPosition(undefined);
       }
+    });
+
+    // Add marker on CTRL + click (open modal instead of adding directly)
+    map.on('singleclick', function (evt) {
+      if (!evt.originalEvent.ctrlKey) return;
+      setNewMarkerCoords(evt.coordinate);
+      setMarkerForm({ image: '', title: '', desc: '' });
+      setShowMarkerModal(true);
     });
 
     // Drag marker logic
@@ -143,24 +157,40 @@ const MapO = () => {
       }
     });
 
-    // Map click to add marker
-    map.on('dblclick', function (evt) {
-      if (clickMarker) {
-        vectorSource.removeFeature(clickMarker);
-        setClickMarker(null);
-      }
-      const coords = toLonLat(evt.coordinate);
-      const feature = new Feature({
-        geometry: new Point(fromLonLat([coords[0], coords[1]])),
+    // Marker hover logic (show pretty modal)
+    map.on('pointermove', function (evt) {
+      let hit = false;
+      map.forEachFeatureAtPixel(evt.pixel, function (feature) {
+        const title = feature.get('title');
+        const desc = feature.get('desc');
+        const image = feature.get('image');
+        if (title && desc && image) {
+          setPopupContent(
+            `<div style="padding:8px 12px;min-width:200px;text-align:center;">
+              <img src="${image}" alt="" style="width:100%;max-width:180px;max-height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;"/>
+              <b style="font-size:16px;">${title}</b><br/>
+              <span style="font-size:13px;color:#444;">${desc}</span>
+            </div>`
+          );
+          setPopupCoord(evt.coordinate);
+          popup.setPosition(evt.coordinate);
+          hit = true;
+        } else if (feature.get('name') && feature.get('route')) {
+          // fallback for default markers
+          setPopupContent(
+            `<div style="padding:8px 12px;min-width:160px;text-align:center;">
+              <b style="font-size:16px;">${feature.get('name')}</b><br/>
+              <span style="font-size:12px;color:#888;">Route: ${feature.get('route')}</span>
+            </div>`
+          );
+          setPopupCoord(evt.coordinate);
+          popup.setPosition(evt.coordinate);
+          hit = true;
+        }
       });
-      feature.setStyle(markerStyle);
-      vectorSource.addFeature(feature);
-      setClickMarker(feature);
-      setPopupContent(
-        `<div>ახალი ობიექტის კოორდინატები:<br/><span style="font-family:monospace;font-size:12px">${coords[1].toFixed(6)}, ${coords[0].toFixed(6)}</span></div>`
-      );
-      setPopupCoord(evt.coordinate);
-      popup.setPosition(evt.coordinate);
+      if (!hit) {
+        popup.setPosition(undefined);
+      }
     });
 
     setMapObj(map);
@@ -237,6 +267,36 @@ const MapO = () => {
     }
   };
 
+  // Handle marker modal form submit
+  const handleMarkerFormSubmit = (e) => {
+    e.preventDefault();
+    if (!newMarkerCoords) return;
+    if (clickMarker) {
+      vectorSource.removeFeature(clickMarker);
+      setClickMarker(null);
+    }
+    const coords = toLonLat(newMarkerCoords);
+    const feature = new Feature({
+      geometry: new Point(fromLonLat([coords[0], coords[1]])),
+      image: markerForm.image,
+      title: markerForm.title,
+      desc: markerForm.desc,
+    });
+    feature.setStyle(markerStyle);
+    vectorSource.addFeature(feature);
+    setClickMarker(feature);
+    setShowMarkerModal(false);
+    setPopupContent(
+      `<div style="padding:8px 12px;min-width:200px;text-align:center;">
+        <img src="${markerForm.image}" alt="" style="width:100%;max-width:180px;max-height:120px;object-fit:cover;border-radius:6px;margin-bottom:8px;"/>
+        <b style="font-size:16px;">${markerForm.title}</b><br/>
+        <span style="font-size:13px;color:#444;">${markerForm.desc}</span>
+      </div>`
+    );
+    setPopupCoord(newMarkerCoords);
+    mapObj && mapObj.getOverlays().item(0).setPosition(newMarkerCoords);
+  };
+
   return (
     <div style={{ position: 'relative' }}>
       {/* Address Search Input */}
@@ -245,7 +305,7 @@ const MapO = () => {
         style={{
           position: 'absolute',
           left: 10,
-          top: 50,
+          top: 70,
           zIndex: 1100,
           background: '#fff',
           borderRadius: 4,
@@ -314,17 +374,78 @@ const MapO = () => {
           position: 'absolute',
           background: 'white',
           padding: 8,
-          borderRadius: 4,
-          border: '1px solid #ccc',
+          borderRadius: 8,
+          border: '1px solid #1976d2',
           minWidth: 120,
           pointerEvents: 'auto',
+          boxShadow: '0 4px 16px #1976d233',
+          zIndex: 2000,
+          transform: 'translate(-50%, -100%)',
+          fontFamily: 'inherit',
         }}
         dangerouslySetInnerHTML={{ __html: popupContent }}
       />
-      <div style={{ position: 'absolute', left: 10, top: 10, zIndex: 1000, background: '#fff8', padding: 4, borderRadius: 4, fontSize: 12 }}>
+      <div style={{ position: 'absolute', right: 10, top: 10, zIndex: 1000, background: '#fff8', padding: 4, borderRadius: 4, fontSize: 12 }}>
         <b>Layer switch:</b> 1 = Light, 2 = Satellite<br />
-        <b>Double click</b> to add marker
+        <b>CTRL + Click</b> to add marker
       </div>
+      {/* Marker Modal */}
+      {showMarkerModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+          background: 'rgba(0,0,0,0.25)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }}>
+          <form
+            onSubmit={handleMarkerFormSubmit}
+            style={{
+              background: '#fff', borderRadius: 10, boxShadow: '0 8px 32px #0003',
+              padding: 24, minWidth: 320, display: 'flex', flexDirection: 'column', gap: 12, position: 'relative'
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setShowMarkerModal(false)}
+              style={{
+                position: 'absolute', right: 12, top: 12, background: 'none', border: 'none', fontSize: 18, cursor: 'pointer'
+              }}
+              aria-label="Close"
+            >×</button>
+            <div style={{ fontWeight: 600, fontSize: 18, marginBottom: 8 }}>Add Marker</div>
+            <input
+              type="url"
+              required
+              placeholder="Image URL"
+              value={markerForm.image}
+              onChange={e => setMarkerForm(f => ({ ...f, image: e.target.value }))}
+              style={{ padding: 8, borderRadius: 4, border: '1px solid #ccc', fontSize: 15 }}
+            />
+            <input
+              type="text"
+              required
+              placeholder="Title"
+              value={markerForm.title}
+              onChange={e => setMarkerForm(f => ({ ...f, title: e.target.value }))}
+              style={{ padding: 8, borderRadius: 4, border: '1px solid #ccc', fontSize: 15 }}
+            />
+            <textarea
+              required
+              placeholder="Description"
+              value={markerForm.desc}
+              onChange={e => setMarkerForm(f => ({ ...f, desc: e.target.value }))}
+              style={{ padding: 8, borderRadius: 4, border: '1px solid #ccc', fontSize: 15, minHeight: 60 }}
+            />
+            <button
+              type="submit"
+              style={{
+                background: '#1976d2', color: 'white', border: 'none', borderRadius: 4,
+                padding: '8px 0', fontSize: 16, fontWeight: 600, cursor: 'pointer'
+              }}
+            >
+              Add Marker
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 };
