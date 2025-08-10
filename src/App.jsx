@@ -6,6 +6,7 @@ import './App.css'
 import Routes from './components/Router/Routes'
 import Header from './components/Header/Header'
 import Footer from './components/Footer/Footer'
+import 'mapbox-gl/dist/mapbox-gl.css'; // Import CSS here if not already
 
 function App() {
   const [count, setCount] = useState(0)

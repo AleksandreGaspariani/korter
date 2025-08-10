@@ -26,7 +26,7 @@ const Footer = () => {
 
   return (
     <footer className="bg-white border-t border-gray-200">
-      <style jsx="true">
+      <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Playwrite+AU+QLD:wght@100..400&display=swap');
         `}

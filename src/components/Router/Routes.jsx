@@ -6,6 +6,7 @@ import MapO from '../Map/MapO'
 import MapC from '../Map/MapC'
 import PropertyListings from '../../pages/PropertyListings/PropertyListings'
 import DevelopersListing from '../../pages/Developers/Developers'
+import MapB from '../Map/MapB'
 
 const Routes = () => {
   return (
@@ -13,7 +14,7 @@ const Routes = () => {
       {/* Layout route */}
       <Route path="/" element={<><Outlet /></>}>
         <Route path="dashboard" element={<Dashboard />} />
-        <Route path="map" element={<MapO />} />
+        <Route path="map" element={<MapB />} />
         <Route path="new-buildings" element={<PropertyListings />} />
         <Route path='developers' element={<DevelopersListing />} />
         {/* Add more nested routes here */}

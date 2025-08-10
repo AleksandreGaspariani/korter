@@ -7,7 +7,7 @@ const Header = () => {
 
   return (
     <header className="w-full">
-      <style jsx>
+      <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Playwrite+AU+QLD:wght@100..400&family=Playwrite+HU:wght@100..400&display=swap');
         `}
