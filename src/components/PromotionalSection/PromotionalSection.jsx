@@ -72,23 +72,32 @@ const PromotionalSection = () => {
         <div className="overflow-x-auto scrollbar-hide relative z-10">
           <div className="flex space-x-4 px-2 pb-2">
             {carouselItems.map((item, index) => {
-              const IconComponent = item.icon
+              const IconComponent = item.icon;
+              // Map card title to route
+              let route = "#";
+              if (item.title === "საცხოვრებელი კომპლექსები") route = "/new-buildings";
+              if (item.title === "იყიდება ბინები") route = "/search/apartments?category=flats&type=sale";
+              if (item.title === "კოტეჯები") route = "/search/apartments?category=cottages&type=sale";
+              if (item.title === "სახლების გაყიდვა") route = "/search/apartments?category=houses&type=sale";
+              if (item.title === "ქირავდება ბინები") route = "/search/apartments?category=flats&type=rent";
+              if (item.title === "ქირავდება სახლები") route = "/search/apartments?category=houses&type=rent";
               return (
-                <div
-                  key={index}
-                  className="min-w-[200px] bg-white rounded-2xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 cursor-pointer group"
-                >
+                <Link to={route} key={index}>
                   <div
-                    className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${item.color} group-hover:scale-110 transition-transform duration-300`}
+                    className="min-w-[200px] bg-white rounded-2xl shadow-md p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 cursor-pointer group"
                   >
-                    <IconComponent className="w-6 h-6" />
+                    <div
+                      className={`inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4 ${item.color} group-hover:scale-110 transition-transform duration-300`}
+                    >
+                      <IconComponent className="w-6 h-6" />
+                    </div>
+                    <h4 className="font-bold text-gray-900 text-sm mb-2 group-hover:text-blue-700 transition-colors">
+                      {item.title}
+                    </h4>
+                    <p className="text-xs text-gray-500 font-medium">{item.count}</p>
                   </div>
-                  <h4 className="font-bold text-gray-900 text-sm mb-2 group-hover:text-blue-700 transition-colors">
-                    {item.title}
-                  </h4>
-                  <p className="text-xs text-gray-500 font-medium">{item.count}</p>
-                </div>
-              )
+                </Link>
+              );
             })}
           </div>
         </div>
