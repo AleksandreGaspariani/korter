@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 
 const properties = [
   {
+    id: 1,
     image: '../../../images/flat1.jpg',
     title: 'მეფე მირიანის ქუჩა, 98',
     district: 'საბურთალო',
@@ -12,6 +13,7 @@ const properties = [
     developer: 'მალაყოს',
   },
   {
+    id: 2,
     image: '../../../images/flat2.jpg',
     title: 'ალბლების ქ., 39',
     district: 'ისანი',
@@ -20,6 +22,7 @@ const properties = [
     developer: 'K3 დეველოპმენტი',
   },
   {
+    id: 3,
     image: '../../../images/flat3.jpg',
     title: 'მოსკოვის გამზირი, 9ა',
     district: 'ისანი',
@@ -28,6 +31,7 @@ const properties = [
     developer: 'New Line Construction',
   },
   {
+    id: 4,
     image: '../../../images/flat4.png',
     title: 'Pillar Park Samgori',
     district: 'კახეთის გზატკეცილი 1ა',
@@ -39,26 +43,28 @@ const properties = [
 
 const PropertyCard = ({ property }) => {
   return (
-    <div className="bg-white border rounded-xl shadow-sm hover:shadow-md transition">
-      <div className="relative">
-        <img src={property.image} alt={property.title} className="w-full h-48 object-cover rounded-t-xl" />
-        <FaHeart className="absolute top-3 right-3 text-gray-600 hover:text-red-500 cursor-pointer" />
-      </div>
-      <div className="p-4 space-y-1">
-        <h3 className="font-bold text-gray-900 text-sm">{property.title}</h3>
-        <p className="text-xs text-gray-500">{property.district}</p>
-        <p className="text-gray-900 font-semibold text-sm">{property.price} <span className="text-gray-500 font-normal text-xs">{property.perM2}</span></p>
-        <p className="text-xs text-gray-500">{property.developer}</p>
-        <div className="flex space-x-2 pt-2">
-          <button className="flex items-center text-sm border rounded px-3 py-1 hover:bg-gray-50">
-            <FaPhone className="mr-1" /> დარეკვა
-          </button>
-          <button className="flex items-center text-sm border rounded px-3 py-1 hover:bg-gray-50">
-            <FaRegCommentDots className="mr-1" /> მიწერა
-          </button>
+    <Link to={`/property/${property.id}`}>
+      <div className="bg-white border rounded-xl shadow-sm hover:shadow-md transition cursor-pointer">
+        <div className="relative">
+          <img src={property.image} alt={property.title} className="w-full h-48 object-cover rounded-t-xl" />
+          <FaHeart className="absolute top-3 right-3 text-gray-600 hover:text-red-500 cursor-pointer" />
+        </div>
+        <div className="p-4 space-y-1">
+          <h3 className="font-bold text-gray-900 text-sm">{property.title}</h3>
+          <p className="text-xs text-gray-500">{property.district}</p>
+          <p className="text-gray-900 font-semibold text-sm">{property.price} <span className="text-gray-500 font-normal text-xs">{property.perM2}</span></p>
+          <p className="text-xs text-gray-500">{property.developer}</p>
+          <div className="flex space-x-2 pt-2">
+            <button className="flex items-center text-sm border rounded px-3 py-1 hover:bg-gray-50">
+              <FaPhone className="mr-1" /> დარეკვა
+            </button>
+            <button className="flex items-center text-sm border rounded px-3 py-1 hover:bg-gray-50">
+              <FaRegCommentDots className="mr-1" /> მიწერა
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

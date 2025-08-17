@@ -4,10 +4,13 @@ import Dashboard from '../../pages/Dashboard/Dashboard'
 import Map from '../Map/Map'
 import MapO from '../Map/MapO'
 import MapC from '../Map/MapC'
+import MapS from '../Map/MapS'
 import PropertyListings from '../../pages/PropertyListings/PropertyListings'
 import DevelopersListing from '../../pages/Developers/Developers'
 import MapB from '../Map/MapB'
 import AdminPanel from '../../pages/Admin/AdminPanel/AdminPanel'
+import PropertyDetail from '../../pages/PropertyListings/PropertyDetail/PropertyDetail'
+import SearchProperty from '../../pages/PropertyListings/SearchProperty/SearchProperty'
 
 // Add your admin subpages here:
 const AdminCategories = () => <div>Categories Management</div>
@@ -20,7 +23,7 @@ const Routes = () => {
       {/* Layout route */}
       <Route path="/" element={<><Outlet /></>}>
         <Route path="dashboard" element={<Dashboard />} />
-        <Route path="map" element={<MapB />} />
+        <Route path="map" element={<MapS />} />
         <Route path="new-buildings" element={<PropertyListings />} />
         <Route path='developers' element={<DevelopersListing />} />
         {/* Admin Panel with nested routes */}
@@ -29,6 +32,9 @@ const Routes = () => {
           <Route path="developments" element={<AdminDevelopments />} />
           {/* Add more nested admin routes here */}
         </Route>
+
+        <Route path="property/:id" element={<PropertyDetail />} />
+        <Route path='/search/apartments' element={<SearchProperty />} />
         {/* Add more nested routes here */}
       </Route>
     </RouterRoutes>
