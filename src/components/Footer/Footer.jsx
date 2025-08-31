@@ -10,18 +10,18 @@ const Footer = () => {
 
   const companyLinks = [
     { title: "Homeinfo-ის შესახებ", link: "/about" },
-    { title: "Homeinfo მხოლოდი", link: "/support" },
+    { title: "Homeinfo საპორტი", link: "/support" },
     { title: "Homeinfo-თან დაკავშირება", link: "/contact" },
-    { title: "გაუნიერი Homeinfo-ში", link: "/join", badge: "ახალი" },
-    { title: "სახლის ყიდვის ნებართვა", link: "/license" },
+    // { title: "გაუნიერი Homeinfo-ში", link: "/join", badge: "ახალი" },
+    // { title: "სახლის ყიდვის ნებართვა", link: "/license" },
   ]
 
   const legalLinks = [
     { title: "გამოყენების პირობა", link: "/terms" },
     { title: "კუკიები cookies", link: "/cookies" },
     { title: "კონფიდენციალობის პოლიტიკა", link: "/privacy" },
-    { title: "გამოყენების პირობები", link: "/usage-terms" },
-    { title: "გამოყენების პირობები", link: "/additional-terms" },
+    // { title: "გამოყენების პირობები", link: "/usage-terms" },
+    // { title: "გამოყენების პირობები", link: "/additional-terms" },
   ]
 
   return (

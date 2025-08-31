@@ -1,12 +1,27 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { FaSearch, FaHeart, FaGlobe, FaMapMarkerAlt, FaPlus } from 'react-icons/fa';
+import { Link, useNavigate } from 'react-router-dom';
+import { FaSearch, FaHeart, FaGlobe, FaMapMarkerAlt, FaPlus, FaSignOutAlt, FaUserCircle, FaCog } from 'react-icons/fa';
+import { useDispatch } from 'react-redux';
+import { logoutUser } from '../../redux/authSlice';
+import { useAuthUser } from '../../redux/useAuthUser';
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [sellDropdownOpen, setSellDropdownOpen] = useState(false);
   const [rentDropdownOpen, setRentDropdownOpen] = useState(false);
   const [dailyDropdownOpen, setDailyDropdownOpen] = useState(false);
+
+  const { user, loading, error } = useAuthUser()
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await dispatch(logoutUser());
+    navigate('/auth');
+  };
+
+  // Check if user has admin role
+  const isAdmin = user?.roles?.some(r => r.slug === 'admin');
 
   return (
     <header className="w-full">
@@ -183,18 +198,48 @@ const Header = () => {
 
           {/* Right Side - Actions */}
           <div className="flex items-center space-x-4 text-gray-700 text-sm">
-            <button className="flex items-center bg-gray-900 text-white px-3 py-1 rounded hover:bg-gray-800">
-              <FaPlus className="mr-1" /> დამატება
-            </button>
-            <Link to='/admin-panel'>
-              <button className="bg-gray-100 px-3 py-1 rounded hover:bg-gray-200">შესვლა</button>
-            </Link>
+            {user && (
+              <>
+                <button className="flex items-center bg-gray-900 text-white px-3 py-1 rounded hover:bg-gray-800">
+                  <FaPlus className="mr-1" /> დამატება
+                </button>
+              </>
+            )}
+            {/* Auth buttons */}
+            {!user ? (
+              <Link to='/auth'>
+                <button className="bg-gray-100 px-3 py-1 rounded hover:bg-gray-200">შესვლა</button>
+              </Link>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <FaUserCircle className="text-blue-600" />
+                <span>{user.name}</span>
+                <button
+                  onClick={handleLogout}
+                  className="bg-gray-100 px-2 py-1 rounded hover:bg-gray-200 flex items-center"
+                  title="Logout"
+                >
+                  <FaSignOutAlt className="mr-1" /> გამოსვლა
+                </button>
+              </div>
+            )}
             <FaHeart className="cursor-pointer hover:text-blue-500" />
             <FaGlobe className="cursor-pointer hover:text-blue-500" />
             <div className="flex items-center space-x-1">
               <FaMapMarkerAlt />
               <span>თბილისი</span>
             </div>
+            {/* Gear icon for admin */}
+            {isAdmin && (
+              <button
+                onClick={() => navigate('/admin-panel')}
+                className="bg-gray-100 px-2 py-1 rounded hover:bg-gray-200 flex items-center"
+                title="Admin Panel"
+                style={{ marginLeft: 8 }}
+              >
+                <FaCog className="text-gray-700" />
+              </button>
+            )}
           </div>
         </div>
       </div>

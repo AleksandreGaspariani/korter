@@ -3,9 +3,19 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import 'mapbox-gl/dist/mapbox-gl.css';
 import App from './App.jsx'
+import { Provider } from 'react-redux'
+import store from './redux/store'
+import { initAuth } from './redux/authSlice'
+import { BrowserRouter } from 'react-router-dom'
+
+store.dispatch(initAuth())
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <Provider store={store}>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </Provider>
   </StrictMode>,
 )

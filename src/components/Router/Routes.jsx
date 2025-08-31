@@ -11,6 +11,10 @@ import MapB from '../Map/MapB'
 import AdminPanel from '../../pages/Admin/AdminPanel/AdminPanel'
 import PropertyDetail from '../../pages/PropertyListings/PropertyDetail/PropertyDetail'
 import SearchProperty from '../../pages/PropertyListings/SearchProperty/SearchProperty'
+import Login from '../../pages/Authentication/Login'
+import RequireAuth from './RequireAuth'
+import AboutUs from '../../pages/About/AboutUs'
+import ContactUs from '../../pages/Contact/ContactUs'
 
 // Add your admin subpages here:
 const AdminCategories = () => <div>Categories Management</div>
@@ -26,8 +30,18 @@ const Routes = () => {
         <Route path="map" element={<MapS />} />
         <Route path="new-buildings" element={<PropertyListings />} />
         <Route path='developers' element={<DevelopersListing />} />
+        <Route path="auth" element={<Login />} />
+        <Route path='about' element={<AboutUs />} />
+        <Route path='contact' element={<ContactUs />} />
         {/* Admin Panel with nested routes */}
-        <Route path="admin-panel" element={<AdminPanel />}>
+        <Route
+          path="admin-panel"
+          element={
+            <RequireAuth roles={['admin']}>
+              <AdminPanel />
+            </RequireAuth>
+          }
+        >
           <Route path="categories" element={<AdminCategories />} />
           <Route path="developments" element={<AdminDevelopments />} />
           {/* Add more nested admin routes here */}
