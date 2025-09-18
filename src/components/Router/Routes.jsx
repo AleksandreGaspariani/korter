@@ -15,6 +15,7 @@ import Login from '../../pages/Authentication/Login'
 import RequireAuth from './RequireAuth'
 import AboutUs from '../../pages/About/AboutUs'
 import ContactUs from '../../pages/Contact/ContactUs'
+import AddProperty from '../../pages/PropertyListings/AddProperty/AddProperty'
 
 // Add your admin subpages here:
 const AdminCategories = () => <div>Categories Management</div>
@@ -33,6 +34,12 @@ const Routes = () => {
         <Route path="auth" element={<Login />} />
         <Route path='about' element={<AboutUs />} />
         <Route path='contact' element={<ContactUs />} />
+        <Route path='add-property' element={
+          <RequireAuth roles={['regular_user', 'admin']}>
+            <AddProperty />
+          </RequireAuth>
+        }/>
+          
         {/* Admin Panel with nested routes */}
         <Route
           path="admin-panel"

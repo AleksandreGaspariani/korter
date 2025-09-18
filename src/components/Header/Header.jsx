@@ -200,9 +200,9 @@ const Header = () => {
           <div className="flex items-center space-x-4 text-gray-700 text-sm">
             {user && (
               <>
-                <button className="flex items-center bg-gray-900 text-white px-3 py-1 rounded hover:bg-gray-800">
+                <Link to={'add-property'} className="flex items-center bg-gray-900 text-white px-3 py-1 rounded hover:bg-gray-800">
                   <FaPlus className="mr-1" /> დამატება
-                </button>
+                </Link>
               </>
             )}
             {/* Auth buttons */}
