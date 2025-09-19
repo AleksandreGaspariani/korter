@@ -247,7 +247,7 @@ const PropertyDetail = ({ property, id: propId, onBack }) => {
                 />
                 <div>
                   <h3 className="font-semibold text-gray-900">ლიდია მჭავარიანი</h3>
-                  <p className="text-sm text-gray-600">უძრავი ქონების კონსულტანტი Korter</p>
+                  <p className="text-sm text-gray-600">უძრავი ქონების კონსულტანტი Homeinfo</p>
                 </div>
               </div>
 

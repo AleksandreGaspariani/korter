@@ -122,8 +122,8 @@ const Header = () => {
                     <Link to="/search/apartments?category=garage&type=sale" className="block px-4 py-2 hover:bg-blue-50 text-gray-700" onClick={() => setSellDropdownOpen(false)}>
                       გარაჟებისა და პაკინგის გაყიდვა
                     </Link>
-                    <Link to="/realtors" className="block px-4 py-2 hover:bg-blue-50 text-gray-700" onClick={() => setSellDropdownOpen(false)}>
-                      რიელტორები
+                    <Link to="/developers" className="block px-4 py-2 hover:bg-blue-50 text-gray-700" onClick={() => setSellDropdownOpen(false)}>
+                      დეველოპმენტები
                     </Link>
                   </div>
                 )}

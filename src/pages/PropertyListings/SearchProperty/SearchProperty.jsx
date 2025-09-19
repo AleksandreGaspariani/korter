@@ -157,7 +157,7 @@ export default function SearchProperty() {
 
       {/* Right Panel - Map */}
       <div className="w-1/2 relative">
-        <MapB />
+        <MapB height={'100%'}/>
       </div>
     </div>
   )

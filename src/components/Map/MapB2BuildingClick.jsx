@@ -1,26 +1,30 @@
 import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { useRef as useReactRef } from 'react';
 
 // Set your Mapbox access token
 mapboxgl.accessToken = 'pk.eyJ1IjoibjBoMG0wIiwiYSI6ImNtZTYxMWZtMjB5eHcya3M5NXkyeGdwbG0ifQ.KvmrNulPZMM0SfATZ_ZyUA';
 
 const TBILISI_COORDS = [44.793, 41.715]; // Tbilisi, Georgia
 
-const MapB = () => {
+// Dummy buildings with specific ids
+const DUMMY_BUILDINGS = [];
+
+const MapB2BuildingClick = ({ onBuildingSelect }) => {
   const mapContainer = useRef(null);
   const map = useRef(null);
   const [mapError, setMapError] = useState(null);
   const [search, setSearch] = useState('');
   const [modal, setModal] = useState({ visible: false, info: null, x: 0, y: 0 });
-  const [markedBuildings, setMarkedBuildings] = useState([]); // [{id, coordinates, info}]
+  const [markedBuildings, setMarkedBuildings] = useState(DUMMY_BUILDINGS); // [{id, coordinates, info}]
   const [hoveredBuildingInfo, setHoveredBuildingInfo] = useState(null);
   const [hoveredBuildingId, setHoveredBuildingId] = useState(null);
   const [isModalHovered, setIsModalHovered] = useState(false);
   const [addModal, setAddModal] = useState({ visible: false, id: null, coordinates: null, x: 0, y: 0 });
   const [addForm, setAddForm] = useState({ title: '', description: '', image: '' });
-  const [suggestions, setSuggestions] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const markersRef = useReactRef([]); // To keep track of marker instances
 
   useEffect(() => {
     // Check if the access token is set
@@ -39,12 +43,12 @@ const MapB = () => {
       // Initialize map
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/streets-v12',
+        style: 'mapbox://styles/mapbox/streets-v11',
         center: TBILISI_COORDS,
         zoom: 16,
-        pitch: 60,
-        bearing: -17.6,
-        antialias: true
+        pitch: 0, // 2D view
+        bearing: 0,
+        antialias: false
       });
 
       // Add navigation controls
@@ -55,7 +59,7 @@ const MapB = () => {
         setMapError(`Map failed to load: ${e.error.message}`);
       });
 
-      // Add 3D buildings layer after map loads
+      // Add 2D buildings layer after map loads
       map.current.on('load', () => {
         // Insert the layer beneath any symbol layer.
         const layers = map.current.getStyle().layers;
@@ -67,41 +71,22 @@ const MapB = () => {
           }
         }
 
-        // 3D buildings layer with dynamic color
+        // 2D buildings layer with dynamic color
         map.current.addLayer(
           {
-            id: 'add-3d-buildings',
+            id: 'add-2d-buildings',
             source: 'composite',
             'source-layer': 'building',
             filter: ['==', 'extrude', 'true'],
-            type: 'fill-extrusion',
-            minzoom: 15,
+            type: 'fill',
             paint: {
-              'fill-extrusion-color': [
+              'fill-color': [
                 'case',
                 ['boolean', ['feature-state', 'marked'], false], '#2196f3', // blue for marked
                 ['boolean', ['feature-state', 'hover'], false], '#ff6600', // orange for hover
                 '#aaa'
               ],
-              'fill-extrusion-height': [
-                'interpolate',
-                ['linear'],
-                ['zoom'],
-                15,
-                0,
-                15.05,
-                ['get', 'height']
-              ],
-              'fill-extrusion-base': [
-                'interpolate',
-                ['linear'],
-                ['zoom'],
-                15,
-                0,
-                15.05,
-                ['get', 'min_height']
-              ],
-              'fill-extrusion-opacity': 0.7
+              'fill-opacity': 0.7
             }
           },
           labelLayerId
@@ -109,7 +94,7 @@ const MapB = () => {
 
         let hoveredId = null;
 
-        map.current.on('mousemove', 'add-3d-buildings', (e) => {
+        map.current.on('mousemove', 'add-2d-buildings', (e) => {
           map.current.getCanvas().style.cursor = 'pointer';
           if (e.features.length > 0) {
             const feature = e.features[0];
@@ -140,7 +125,7 @@ const MapB = () => {
           }
         });
 
-        map.current.on('mouseleave', 'add-3d-buildings', () => {
+        map.current.on('mouseleave', 'add-2d-buildings', () => {
           map.current.getCanvas().style.cursor = 'grab';
           if (hoveredId !== null && !markedBuildings.some(b => b.id === hoveredId)) {
             map.current.setFeatureState(
@@ -150,29 +135,46 @@ const MapB = () => {
           }
           hoveredId = null;
           setHoveredBuildingId(null);
-          // Only hide modal if not hovering modal itself
           setTimeout(() => {
             if (!isModalHovered) setHoveredBuildingInfo(null);
           }, 10);
         });
 
         // Mark building on CTRL+click and show add info modal
-        map.current.on('click', 'add-3d-buildings', (e) => {
-          if (e.originalEvent.ctrlKey && e.features.length > 0) {
+        map.current.on('click', 'add-2d-buildings', (e) => {
+          if (e.features.length > 0) {
             const feature = e.features[0];
             const id = feature.id;
-            if (!markedBuildings.some(b => b.id === id)) {
-              const coordinates = feature.geometry.type === 'Polygon'
-                ? feature.geometry.coordinates[0][0]
-                : feature.geometry.coordinates[0][0][0];
-              setAddModal({
-                visible: true,
-                id,
-                coordinates,
-                x: e.originalEvent.clientX,
-                y: e.originalEvent.clientY
-              });
-              setAddForm({ title: '', description: '', image: '' });
+            // Call the callback with the building id
+            if (typeof onBuildingSelect === 'function') {
+              onBuildingSelect(id);
+            }
+            // Mark building on CTRL+click and show add info modal
+            if (e.originalEvent.ctrlKey) {
+              if (!markedBuildings.some(b => b.id === id)) {
+                const coordinates = feature.geometry.type === 'Polygon'
+                  ? feature.geometry.coordinates[0][0]
+                  : feature.geometry.coordinates[0][0][0];
+                setAddModal({
+                  visible: true,
+                  id,
+                  coordinates,
+                  x: e.originalEvent.clientX,
+                  y: e.originalEvent.clientY
+                });
+                setAddForm({ title: '', description: '', image: '' });
+              }
+            } else {
+              // Show info modal for marked building on click
+              const marked = markedBuildings.find(b => b.id === id);
+              if (marked && marked.info) {
+                setModal({
+                  visible: true,
+                  info: marked.info,
+                  x: e.originalEvent.clientX,
+                  y: e.originalEvent.clientY
+                });
+              }
             }
           }
         });
@@ -200,6 +202,7 @@ const MapB = () => {
         });
 
         map.current.resize();
+        setMapLoaded(true);
       });
 
     } catch (error) {
@@ -214,27 +217,22 @@ const MapB = () => {
       }
     };
   }, []);
-
-  // Add markedBuildings as dependency to update feature-state when it changes
+  
+  // Only set feature state after map is loaded
   useEffect(() => {
-    if (!map.current) return;
-    // Clear all marked states first
+    if (!map.current || !mapLoaded) return;
     const source = 'composite';
     const sourceLayer = 'building';
-    // Remove marked state from all buildings not in markedBuildings
-    // (Optional: could be optimized)
-    // Set marked state for all marked buildings
     markedBuildings.forEach(b => {
       map.current.setFeatureState(
         { source, sourceLayer, id: b.id },
         { marked: true, hover: false }
       );
     });
-  }, [markedBuildings]);
+  }, [markedBuildings, mapLoaded]);
 
-  // Search handler using Mapbox Geocoding API
-  const handleSearch = async (e) => {
-    e.preventDefault();
+  // Update handleSearch to not reload the page
+  const handleSearch = async () => {
     if (!search) return;
     try {
       const res = await fetch(
@@ -248,7 +246,7 @@ const MapB = () => {
         map.current.flyTo({ center: [lng, lat], zoom: 16 });
       }
     } catch (err) {
-      setMapError('ძიება ვერ შესრულდა.'); // Georgian for "Search failed."
+      setMapError('Search failed.');
     }
   };
 
@@ -256,13 +254,16 @@ const MapB = () => {
   const handleAddModalSubmit = (e) => {
     e.preventDefault();
     if (!addForm.title || !addForm.description) return;
+    const buildingData = {
+      id: addModal.id,
+      coordinates: addModal.coordinates,
+      info: { ...addForm }
+    };
+    // Log the building data being saved
+    console.log('Saving building data:', buildingData);
     setMarkedBuildings(prev => [
       ...prev,
-      {
-        id: addModal.id,
-        coordinates: addModal.coordinates,
-        info: { ...addForm }
-      }
+      buildingData
     ]);
     // Set feature-state for marked
     if (map.current) {
@@ -297,42 +298,67 @@ const MapB = () => {
     return () => window.removeEventListener('mousemove', handleMove);
   }, [hoveredBuildingId, markedBuildings]);
 
-  // Fetch suggestions as user types
+  // Add annotation markers for buildings with info
   useEffect(() => {
-    if (!search) {
-      setSuggestions([]);
-      return;
-    }
-    let ignore = false;
-    fetch(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-        search
-      )}.json?access_token=${mapboxgl.accessToken}&language=ka&autocomplete=true&limit=5`
-    )
-      .then(res => res.json())
-      .then(data => {
-        if (!ignore) {
-          setSuggestions(data.features || []);
-        }
-      });
-    return () => { ignore = true; };
-  }, [search]);
+    if (!map.current || !mapLoaded) return;
 
-  // Select suggestion handler
-  const handleSuggestionClick = (feature) => {
-    setSearch(feature.place_name);
-    setShowSuggestions(false);
-    setSuggestions([]);
-    if (map.current && feature.center) {
-      map.current.flyTo({ center: feature.center, zoom: 16 });
-    }
-  };
+    // Remove previous markers
+    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current = [];
+
+    markedBuildings.forEach(b => {
+      if (!b.coordinates || !b.info) return;
+      // Create a DOM element for the marker (could be customized)
+      const el = document.createElement('div');
+      el.style.background = '#2196f3';
+      el.style.width = '18px';
+      el.style.height = '18px';
+      el.style.borderRadius = '50%';
+      el.style.border = '2px solid #fff';
+      el.style.boxShadow = '0 2px 6px rgba(33,150,243,0.3)';
+      el.style.cursor = 'pointer';
+
+      // Add a popup for annotation
+      const popup = new mapboxgl.Popup({ offset: 18 })
+        .setHTML(
+          `<strong>${b.info.title}</strong><br/>${b.info.description}${
+            b.info.image
+              ? `<br/><img src="${b.info.image}" alt="" style="width:120px;margin-top:4px;border-radius:4px"/>`
+              : ''
+          }`
+        );
+
+      const marker = new mapboxgl.Marker(el)
+        .setLngLat(b.coordinates)
+        .setPopup(popup)
+        .addTo(map.current);
+
+      markersRef.current.push(marker);
+    });
+
+    // Cleanup on unmount or update
+    return () => {
+      markersRef.current.forEach(marker => marker.remove());
+      markersRef.current = [];
+    };
+  }, [markedBuildings, mapLoaded]);
+
+  // Close modal when clicking elsewhere on the map
+  useEffect(() => {
+    if (!map.current) return;
+    const handleMapClick = () => {
+      setModal({ visible: false, info: null, x: 0, y: 0 });
+    };
+    map.current.on('click', handleMapClick);
+    return () => {
+      if (map.current) map.current.off('click', handleMapClick);
+    };
+  }, [mapLoaded]);
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
       {/* Search Bar */}
-      <form
-        onSubmit={handleSearch}
+      <div
         style={{
           position: 'absolute',
           top: 10,
@@ -343,59 +369,29 @@ const MapB = () => {
           borderRadius: 4,
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
         }}
-        autoComplete="off"
       >
-        <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', position: 'relative' }}>
-          <input
-            type="text"
-            value={search}
-            onChange={e => {
-              setSearch(e.target.value);
-              setShowSuggestions(true);
-            }}
-            onFocus={() => setShowSuggestions(true)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-            placeholder="ძიება.."
-            style={{ padding: 4, width: 180 }}
-            autoComplete="off"
-          />
-          <button type="submit" style={{ marginLeft: 8, padding: '4px 10px', height: 32 }}>
-            ძიება
-          </button>
-          {showSuggestions && suggestions.length > 0 && (
-            <ul
-              style={{
-                position: 'absolute',
-                top: 34,
-                left: 0,
-                width: '100%',
-                background: '#fff',
-                border: '1px solid #ccc',
-                borderRadius: 4,
-                margin: 0,
-                padding: 0,
-                listStyle: 'none',
-                zIndex: 100
-              }}
-            >
-              {suggestions.map((feature, idx) => (
-                <li
-                  key={feature.id}
-                  onMouseDown={() => handleSuggestionClick(feature)}
-                  style={{
-                    padding: '6px 10px',
-                    cursor: 'pointer',
-                    borderBottom: idx !== suggestions.length - 1 ? '1px solid #eee' : 'none'
-                  }}
-                >
-                  {feature.place_name}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </form>
-      {/* Modal for marker info */}
+        <input
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search for a place..."
+          style={{ padding: 4, width: 180 }}
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              handleSearch();
+            }
+          }}
+        />
+        <button
+          type="button"
+          style={{ marginLeft: 8, padding: '4px 10px' }}
+          onClick={handleSearch}
+        >
+          Search
+        </button>
+      </div>
+      {/* Modal for marker info or building info */}
       {modal.visible && (
         <div
           style={{
@@ -526,4 +522,4 @@ const MapB = () => {
   );
 };
 
-export default MapB;
+export default MapB2BuildingClick;

@@ -10,27 +10,27 @@ const TBILISI_COORDS = [44.793, 41.715]; // Tbilisi, Georgia
 
 // Dummy buildings with specific ids
 const DUMMY_BUILDINGS = [
-  {
-    id: 1246282548,
-    coordinates: [44.7932, 41.7151],
-    info: {
-      title: 'Dummy Building 1',
-      description: 'This is a dummy building with id 1246282548.',
-      image: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/Rustaveli_Theatre.jpg'
-    }
-  },
-  {
-    id: 57037626,
-    coordinates: [44.7935, 41.7153],
-    info: {
-      title: 'Dummy Building 2',
-      description: 'This is a dummy building with id 57037626.',
-      image: 'https://upload.wikimedia.org/wikipedia/commons/7/7e/Freedom_Square_Tbilisi.jpg'
-    }
-  }
+  // {
+  //   id: 1246282548,
+  //   coordinates: [44.7932, 41.7151],
+  //   info: {
+  //     title: 'Dummy Building 1',
+  //     description: 'This is a dummy building with id 1246282548.',
+  //     image: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/Rustaveli_Theatre.jpg'
+  //   }
+  // },
+  // {
+  //   id: 57037626,
+  //   coordinates: [44.7935, 41.7153],
+  //   info: {
+  //     title: 'Dummy Building 2',
+  //     description: 'This is a dummy building with id 57037626.',
+  //     image: 'https://upload.wikimedia.org/wikipedia/commons/7/7e/Freedom_Square_Tbilisi.jpg'
+  //   }
+  // }
 ];
 
-const MapB = () => {
+const MapB = ({ height }) => {
   const mapContainer = useRef(null);
   const map = useRef(null);
   const [mapError, setMapError] = useState(null);
@@ -536,7 +536,11 @@ const MapB = () => {
       {/* Map container */}
       <div
         ref={mapContainer}
-        style={{ width: '100%', height: '500px', minHeight: '500px' }}
+        style={{
+          width: '100%',
+          height: height ? height : '500px',
+          minHeight: height ? height : '500px'
+        }}
       />
       {/* Error display */}
       {mapError && (

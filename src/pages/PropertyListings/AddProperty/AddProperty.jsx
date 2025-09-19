@@ -4,7 +4,8 @@ import { useState } from "react"
 import structure from "../PropertyStructure.json"
 import { FaBuilding, FaHome, FaCalendarDay, FaCheckCircle } from "react-icons/fa"
 import axios from "../../../plugins/axios"
-import MapB from "../../../components/Map/MapB"
+import MapB2BuildingClick from "../../../components/Map/MapB2BuildingClick"
+import propertyLabels from "../PropertyLabels.json"
 
 const typeMap = [
   { key: "Sell", label: "გაყიდვა", icon: FaBuilding },
@@ -20,6 +21,12 @@ const categoryLabels = {
 
 const defaultCategory = "living"
 const defaultPropertyType = "flat"
+
+const listingTypeMap = {
+  Sell: "sell",
+  Rent: "rent",
+  Daily: "daily"
+};
 
 const AddProperty = () => {
   const [selectedTab, setSelectedTab] = useState("Sell")
@@ -94,14 +101,17 @@ const AddProperty = () => {
     })
   }
 
+  const getLabel = (key, fallback) => propertyLabels[key] || fallback || key
+
   const renderFormField = (field) => {
-    const { key, type, label, options, prop } = field
+    const { key, type, label, options, prop } = field;
+    const mappedLabel = getLabel(key, label);
 
     if (type === "string") {
       return (
         <div key={key} className="mb-4">
           <label className="block text-gray-700 font-medium mb-2">
-            {label} {prop !== "disabled_label" && "*"}
+            {mappedLabel} {prop !== "disabled_label" && "*"}
           </label>
           <input
             type="text"
@@ -117,7 +127,7 @@ const AddProperty = () => {
     if (type === "number") {
       return (
         <div key={key} className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">{label}</label>
+          <label className="block text-gray-700 font-medium mb-2">{mappedLabel}</label>
           <input
             type="number"
             value={formData[key] || ""}
@@ -131,16 +141,18 @@ const AddProperty = () => {
     if (type === "select") {
       return (
         <div key={key} className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">{label}</label>
+          <label className="block text-gray-700 font-medium mb-2">{mappedLabel}</label>
           <select
             value={formData[key] || ""}
             onChange={(e) => handleInputChange(key, e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-400 transition"
           >
-            <option value="">Select {label}</option>
+            <option value="">Select {mappedLabel}</option>
             {options?.map((option, idx) => (
               <option key={idx} value={typeof option === "object" ? option.value : option}>
-                {typeof option === "object" ? option.label : option}
+                {typeof option === "object"
+                  ? getLabel(option.value, option.label)
+                  : getLabel(option, option)}
               </option>
             ))}
           </select>
@@ -158,7 +170,7 @@ const AddProperty = () => {
               onChange={(e) => handleInputChange(key, e.target.checked)}
               className="rounded"
             />
-            <span className="text-gray-700">{label}</span>
+            <span className="text-gray-700">{mappedLabel}</span>
           </label>
         </div>
       )
@@ -168,6 +180,7 @@ const AddProperty = () => {
   }
 
   const renderFormSection = (sectionKey, sectionData, title) => {
+    const mappedTitle = getLabel(sectionKey, title);
     if (!sectionData || sectionData.length === 0) return null
 
     // Single-select groups: plan_type, room_count, bedroom_count, bathroom_count
@@ -180,13 +193,13 @@ const AddProperty = () => {
 
     return (
       <div className="mb-8">
-        <h3 className="text-lg font-semibold mb-4">{title}</h3>
+        <h3 className="text-lg font-semibold mb-4">{mappedTitle}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {sectionData.map((field, idx) => {
             if (typeof field === "object" && !field.key) {
               return Object.entries(field).map(([nestedKey, nestedFields]) => (
                 <div key={`${sectionKey}-${nestedKey}-${idx}`} className="col-span-full">
-                  <h4 className="text-md font-medium mb-3 capitalize">{nestedKey.replace("_", " ")}</h4>
+                  <h4 className="text-md font-medium mb-3 capitalize">{getLabel(nestedKey, nestedKey.replace("_", " "))}</h4>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {nestedFields.map((nestedField, nestedIdx) => {
                       // Single-select logic for plan_type, room_count, bedroom_count, bathroom_count
@@ -207,7 +220,7 @@ const AddProperty = () => {
                                   : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
                               }`}
                             >
-                              {nestedField.label}
+                              {getLabel(nestedField.key, nestedField.label)}
                             </button>
                           )
                         }
@@ -225,7 +238,7 @@ const AddProperty = () => {
                                   : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
                               }`}
                             >
-                              {nestedField.label}
+                              {getLabel(nestedField.key, nestedField.label)}
                             </button>
                           )
                         }
@@ -243,6 +256,15 @@ const AddProperty = () => {
       </div>
     )
   }
+
+  const getSelectedPropertyTypeLabel = () => {
+    // Find the label for the selected property type
+    for (const category of Object.values(propertyTypes)) {
+      const found = category.find((prop) => prop.key === selectedPropertyType);
+      if (found) return getLabel(found.key, found.label);
+    }
+    return getLabel(selectedPropertyType);
+  };
 
   const PropertyPreview = () => (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -268,16 +290,27 @@ const AddProperty = () => {
         </div>
 
         <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-          <div className="flex items-center gap-1">
-            <FaBuilding className="text-xs" />
-            <span>ოფისი</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span>{formData.total_area || "60.23"} მ²</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span>{formData.rooms_4 || formData.rooms_3 || formData.rooms_2 || formData.rooms_1 || "4"} ოთახი</span>
-          </div>
+          {/* Only show property type if set */}
+          {getSelectedPropertyTypeLabel() && (
+            <div className="flex items-center gap-1">
+              <FaBuilding className="text-xs" />
+              <span>{getSelectedPropertyTypeLabel()}</span>
+            </div>
+          )}
+          {/* Only show area if set */}
+          {formData.total_area && (
+            <div className="flex items-center gap-1">
+              <span>{formData.total_area} მ²</span>
+            </div>
+          )}
+          {/* Only show rooms if set */}
+          {(formData.rooms_4 || formData.rooms_3 || formData.rooms_2 || formData.rooms_1) && (
+            <div className="flex items-center gap-1">
+              <span>
+                {formData.rooms_4 || formData.rooms_3 || formData.rooms_2 || formData.rooms_1} ოთახი
+              </span>
+            </div>
+          )}
         </div>
 
         <p className="text-sm text-gray-600 mb-3">
@@ -315,6 +348,34 @@ const AddProperty = () => {
       </div>
     </div>
   )
+
+  // Add this function to handle building selection from the map
+  const handleBuildingSelect = (buildingId) => {
+    setFormData(prev => ({
+      ...prev,
+      building_id_mapbox: buildingId
+    }))
+  }
+
+  // Submit handler for the form
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // Prepare payload with required fields
+    const payload = {
+      ...formData,
+      listing_type: listingTypeMap[selectedTab] || "",
+      property_type: selectedPropertyType,
+      building_id_mapbox: formData.building_id_mapbox ? String(formData.building_id_mapbox) : ""
+    };
+    
+    try {
+      await axios.post('property', payload);
+      alert('Property submitted successfully!');
+      setFormData({});
+    } catch (err) {
+      alert('Error submitting property.');
+    }
+  };
 
   if (currentStep === "type-selection") {
     return (
@@ -360,7 +421,7 @@ const AddProperty = () => {
                       className="bg-white border border-gray-200 rounded-lg px-6 py-4 shadow hover:bg-blue-50 hover:border-blue-400 transition-all text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
                       onClick={() => handlePropertyTypeSelect(category, property.key)}
                     >
-                      {property.label}
+                      {getLabel(property.key, property.label)}
                     </button>
                   ))}
                 </div>
@@ -399,7 +460,7 @@ const AddProperty = () => {
           <div className="mt-8">
             {Object.entries(propertyTypes).map(([category, properties]) => (
               <div key={category} className="mb-4">
-                <div className="font-semibold text-gray-700 mb-2">{categoryLabels[category] || category}</div>
+                <div className="font-semibold text-gray-700 mb-2">{categoryLabels[category] || getLabel(category, category)}</div>
                 <div className="flex flex-wrap gap-2">
                   {properties.map((property) => (
                     <button
@@ -411,7 +472,7 @@ const AddProperty = () => {
                       }`}
                       onClick={() => handlePropertyTypeSelect(category, property.key)}
                     >
-                      {property.label}
+                      {getLabel(property.key, property.label)}
                     </button>
                   ))}
                 </div>
@@ -421,18 +482,18 @@ const AddProperty = () => {
         </div>
 
         {/* Right side: Form and preview */}
-        <div className="lg:w-3/4">
-
+        <div className="lg:w-full">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Form Section */}
             <div className="lg:col-span-2">
-              <form className="bg-white rounded-xl shadow p-8">
+              {/* Change form to use handleSubmit */}
+              <form className="bg-white rounded-xl shadow p-8" onSubmit={handleSubmit}>
                 {propertyConfig.location && renderFormSection("location", propertyConfig.location, "ადგილმდებარეობა")}
                 {/* Map placeholder */}
                 {propertyConfig.location && (
                   <div className="mb-8">
                     <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center border overflow-hidden">
-                      <MapB />
+                      <MapB2BuildingClick onBuildingSelect={handleBuildingSelect} />
                     </div>
                   </div>
                 )}

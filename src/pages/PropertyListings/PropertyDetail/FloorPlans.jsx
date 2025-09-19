@@ -59,10 +59,10 @@ const FloorPlans = ({ property }) => {
           </div>
         </div>
 
-        <button className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors">
+        {/* <button className="flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors">
           <FiEye className="mr-1" size={14} />
           შეგვატყობინეთ უზუსტობის შესახებ
-        </button>
+        </button> */}
       </div>
 
       {/* Floor Plans Grid */}
