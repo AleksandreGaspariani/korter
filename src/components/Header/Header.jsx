@@ -205,22 +205,44 @@ const Header = () => {
                 </Link>
               </>
             )}
-            {/* Auth buttons */}
+            {/* Auth & User Dropdown */}
             {!user ? (
               <Link to='/auth'>
                 <button className="bg-gray-100 px-3 py-1 rounded hover:bg-gray-200">შესვლა</button>
               </Link>
             ) : (
-              <div className="flex items-center space-x-2">
-                <FaUserCircle className="text-blue-600" />
-                <span>{user.name}</span>
+              <div className="relative">
                 <button
-                  onClick={handleLogout}
-                  className="bg-gray-100 px-2 py-1 rounded hover:bg-gray-200 flex items-center"
-                  title="Logout"
+                  className="flex items-center space-x-2 bg-gray-100 px-3 py-1 rounded hover:bg-gray-200"
+                  onClick={() => setDropdownOpen((open) => !open)}
+                  type="button"
                 >
-                  <FaSignOutAlt className="mr-1" /> გამოსვლა
+                  <FaUserCircle className="text-blue-600" />
+                  <span>{user.name}</span>
+                  <svg className="ml-1 w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
                 </button>
+                {dropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-30">
+                    <Link
+                      to="/my/listings"
+                      className="block px-4 py-2 hover:bg-blue-50 text-gray-700"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      ჩემი განცხადებები
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setDropdownOpen(false);
+                        handleLogout();
+                      }}
+                      className="block w-full text-left px-4 py-2 hover:bg-blue-50 text-gray-700"
+                    >
+                      <FaSignOutAlt className="mr-1 inline" /> გამოსვლა
+                    </button>
+                  </div>
+                )}
               </div>
             )}
             <FaHeart className="cursor-pointer hover:text-blue-500" />
@@ -229,7 +251,6 @@ const Header = () => {
               <FaMapMarkerAlt />
               <span>თბილისი</span>
             </div>
-            {/* Gear icon for admin */}
             {isAdmin && (
               <button
                 onClick={() => navigate('/admin-panel')}

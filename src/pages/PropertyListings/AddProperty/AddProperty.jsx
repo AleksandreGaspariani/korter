@@ -90,15 +90,36 @@ const AddProperty = () => {
     return propertyConfig?.inputs?.[0] || null
   }
 
-  const handleSingleSelect = (groupKeys, selectedKey, value) => {
-    setFormData(prev => {
-      const updated = { ...prev }
-      groupKeys.forEach(key => {
-        updated[key] = undefined
-      })
-      updated[selectedKey] = value
-      return updated
-    })
+  // Add this new state to track selections for each group
+  const [selectedGroupKeys, setSelectedGroupKeys] = useState({
+    room_count: null,
+    bedroom_count: null,
+    bathroom_count: null,
+    plan_type: null
+  })
+
+  // Update the handleSingleSelect function to track per-group selection
+  const handleSingleSelect = (groupType, selectedKey, value) => {
+    // First, update which key is selected for this specific group
+    setSelectedGroupKeys(prev => ({
+      ...prev,
+      [groupType]: selectedKey
+    }))
+    
+    // Extract the value from the key (e.g., "rooms_1" -> "1", "bedrooms_4plus" -> "4+")
+    let actualValue = selectedKey;
+    
+    if (selectedKey.includes('_')) {
+      // Get everything after the last underscore
+      actualValue = selectedKey.split('_').pop();
+    }
+    
+    // Then update the form data using standardized keys
+    setFormData(prev => ({
+      ...prev,
+      // Use the group type directly as the key (room_count, bedroom_count, bathroom_count)
+      [groupType]: actualValue
+    }))
   }
 
   const getLabel = (key, fallback) => propertyLabels[key] || fallback || key
@@ -203,19 +224,16 @@ const AddProperty = () => {
                   <div className="flex flex-wrap gap-2 mb-4">
                     {nestedFields.map((nestedField, nestedIdx) => {
                       // Single-select logic for plan_type, room_count, bedroom_count, bathroom_count
-                      if (
-                        singleSelectGroups.includes(nestedKey)
-                      ) {
-                        const groupKeys = nestedFields.map(f => f.key)
+                      if (singleSelectGroups.includes(nestedKey)) {
                         // For boolean type
                         if (nestedField.type === "boolean") {
                           return (
                             <button
                               key={`${nestedKey}-${nestedIdx}`}
                               type="button"
-                              onClick={() => handleSingleSelect(groupKeys, nestedField.key, !formData[nestedField.key])}
+                              onClick={() => handleSingleSelect(nestedKey, nestedField.key, !formData[nestedField.key])}
                               className={`px-4 py-2 rounded-lg border transition-all ${
-                                formData[nestedField.key]
+                                selectedGroupKeys[nestedKey] === nestedField.key && formData[nestedField.key]
                                   ? "bg-blue-500 text-white border-blue-500"
                                   : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
                               }`}
@@ -226,14 +244,13 @@ const AddProperty = () => {
                         }
                         // For select type
                         if (nestedField.type === "select") {
-                          const selected = formData[nestedField.key] !== undefined
                           return (
                             <button
                               key={`${nestedKey}-${nestedIdx}`}
                               type="button"
-                              onClick={() => handleSingleSelect(groupKeys, nestedField.key, nestedField.options[0])}
+                              onClick={() => handleSingleSelect(nestedKey, nestedField.key, nestedField.options[0])}
                               className={`px-4 py-2 rounded-lg border transition-all ${
-                                selected
+                                selectedGroupKeys[nestedKey] === nestedField.key
                                   ? "bg-blue-500 text-white border-blue-500"
                                   : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
                               }`}
@@ -303,11 +320,11 @@ const AddProperty = () => {
               <span>{formData.total_area} მ²</span>
             </div>
           )}
-          {/* Only show rooms if set */}
-          {(formData.rooms_4 || formData.rooms_3 || formData.rooms_2 || formData.rooms_1) && (
+          {/* Only show rooms if set - updated to use room_count */}
+          {formData.room_count && (
             <div className="flex items-center gap-1">
               <span>
-                {formData.rooms_4 || formData.rooms_3 || formData.rooms_2 || formData.rooms_1} ოთახი
+                {formData.room_count} ოთახი
               </span>
             </div>
           )}
@@ -349,27 +366,54 @@ const AddProperty = () => {
     </div>
   )
 
-  // Add this function to handle building selection from the map
-  const handleBuildingSelect = (buildingId) => {
+  // Update handleBuildingSelect to accept buildingId and coordinates
+  const handleBuildingSelect = (buildingId, coordinates) => {
+    // coordinates: [lng, lat]
     setFormData(prev => ({
       ...prev,
-      building_id_mapbox: buildingId
+      building_id_mapbox: buildingId,
+      latitude: coordinates && coordinates[1] ? String(coordinates[1]) : "",
+      longitude: coordinates && coordinates[0] ? String(coordinates[0]) : ""
     }))
   }
 
   // Submit handler for the form
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Prepare payload with required fields
-    const payload = {
-      ...formData,
-      listing_type: listingTypeMap[selectedTab] || "",
-      property_type: selectedPropertyType,
-      building_id_mapbox: formData.building_id_mapbox ? String(formData.building_id_mapbox) : ""
-    };
-    
+
+    // Prepare FormData for binary/image upload
+    const form = new FormData();
+
+    // List of boolean fields to normalize as 1/0
+    const booleanFields = ['balcony', 'terrace'];
+
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key === "photos") return;
+      // Send balcony/terrace as 1/0
+      if (booleanFields.includes(key)) {
+        form.append(key, value ? 1 : 0);
+      } else {
+        form.append(key, value);
+      }
+    });
+
+    if (formData.photos && Array.isArray(formData.photos)) {
+      formData.photos.forEach((file, idx) => {
+        form.append("photos[]", file);
+      });
+    }
+
+    form.append("listing_type", listingTypeMap[selectedTab] || "");
+    form.append("property_type", selectedPropertyType);
+    if (formData.building_id_mapbox)
+      form.append("building_id_mapbox", String(formData.building_id_mapbox));
+
     try {
-      await axios.post('property', payload);
+      await axios.post('property', form, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
       alert('Property submitted successfully!');
       setFormData({});
     } catch (err) {

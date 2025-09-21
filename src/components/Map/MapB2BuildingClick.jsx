@@ -145,9 +145,16 @@ const MapB2BuildingClick = ({ onBuildingSelect }) => {
           if (e.features.length > 0) {
             const feature = e.features[0];
             const id = feature.id;
-            // Call the callback with the building id
+            // Get coordinates from the feature geometry
+            let coordinates;
+            if (feature.geometry.type === 'Polygon') {
+              coordinates = feature.geometry.coordinates[0][0];
+            } else if (feature.geometry.type === 'MultiPolygon') {
+              coordinates = feature.geometry.coordinates[0][0][0];
+            }
+            // Call the callback with the building id and coordinates
             if (typeof onBuildingSelect === 'function') {
-              onBuildingSelect(id);
+              onBuildingSelect(id, coordinates);
             }
             // Mark building on CTRL+click and show add info modal
             if (e.originalEvent.ctrlKey) {

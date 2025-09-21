@@ -13,7 +13,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -102,7 +104,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "cadastral_code", "type": "number", "label": "Cadastral Code" }
@@ -195,7 +199,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "cadastral_code", "type": "number", "label": "Cadastral Code" }
@@ -288,7 +294,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "cadastral_code", "type": "number", "label": "Cadastral Code" }
@@ -381,7 +389,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "cadastral_code", "type": "number", "label": "Cadastral Code" }
@@ -474,7 +484,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "cadastral_code", "type": "number", "label": "Cadastral Code" }
@@ -566,7 +578,9 @@
                                         { "key": "city", "type": "string", "label": "City" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "cadastral_code", "type": "number", "label": "Cadastral Code" }
@@ -636,7 +650,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -697,7 +713,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -758,7 +776,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -819,7 +839,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -880,7 +902,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -941,7 +965,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -1004,7 +1030,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         
@@ -1058,7 +1086,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -1123,7 +1153,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -1212,7 +1244,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "cadastral_code", "type": "number", "label": "Cadastral Code" }
@@ -1305,7 +1339,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "cadastral_code", "type": "number", "label": "Cadastral Code" }
@@ -1398,7 +1434,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "cadastral_code", "type": "number", "label": "Cadastral Code" }
@@ -1491,7 +1529,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "cadastral_code", "type": "number", "label": "Cadastral Code" }
@@ -1584,7 +1624,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "cadastral_code", "type": "number", "label": "Cadastral Code" }
@@ -1679,7 +1721,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -1740,7 +1784,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -1801,7 +1847,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -1862,7 +1910,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -1923,7 +1973,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -1984,7 +2036,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -2047,7 +2101,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         
@@ -2101,7 +2157,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -2166,7 +2224,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "floor_number", "type": "number", "label": "Floor Number" },
@@ -2255,7 +2315,9 @@
                                         { "key": "development_name", "type": "string", "label": "Development Name" },
                                         { "key": "address", "type": "string", "label": "Address" },
                                         { "key": "flat_number", "type": "number", "label": "Flat Number" },
-                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" }
+                                        { "key": "building_id_mapbox", "type": "string", "label": "Building ID", "prop": "disabled_label" },
+                                        { "key": "latitude", "type": "string", "label": "Latitude" },
+                                        { "key": "longitude", "type": "string", "label": "Longitude" }
                                     ],
                                     "floor": [
                                         { "key": "cadastral_code", "type": "number", "label": "Cadastral Code" }

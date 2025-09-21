@@ -220,7 +220,28 @@ export default function AuthPage() {
               )}
 
               {/* Show error if exists */}
-              {error && <div className="text-red-500 text-sm mb-2">{error}</div>}
+              {error && (
+                <div className="text-red-500 text-sm mb-2">
+                  {/* Show general message for 422 validation errors */}
+                  {typeof error === "object" && error.errors && (
+                    <div className="mb-1 font-semibold">
+                      Please check your input and try again.
+                    </div>
+                  )}
+                  {/* If error is an object with 'errors' property, show each error */}
+                  {typeof error === "object" && error.errors
+                    ? Object.entries(error.errors).map(([field, messages]) =>
+                        messages.map((msg, idx) => (
+                          <div key={field + idx}>{msg}</div>
+                        ))
+                      )
+                    : typeof error === "object" && error.message
+                    ? error.message
+                    : typeof error === "string"
+                    ? error
+                    : null}
+                </div>
+              )}
               {/* Show loading spinner if loading */}
               {loading && <div className="text-emerald-600 text-sm mb-2">Loading...</div>}
 
