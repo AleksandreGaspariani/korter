@@ -5,6 +5,7 @@ import { MapPin, SlidersHorizontal, Heart, Bed, Square, Clock, ChevronDown } fro
 import MapB from "../../../components/Map/MapB"
 import modernApartmentExterior from '../../../../public/images/modern-apartment-exterior.png'
 import modernApartmentLivingRoom from '../../../../public/images/modern-apartment-living-room.png'
+import defaultInstance from "../../../plugins/axios"
 
 const propertyData = [
   {
@@ -37,7 +38,6 @@ const propertyData = [
   },
 ]
 
-
 export default function SearchProperty() {
   const [searchLocation, setSearchLocation] = useState("")
   const [sortBy, setSortBy] = useState("recommended")
@@ -48,7 +48,7 @@ export default function SearchProperty() {
       <div className="w-1/2 flex flex-col border-r border-gray-200">
         {/* Header */}
         <div className="p-6 border-b border-gray-200 bg-white">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Apartments for Sale in Tbilisi</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Apartments for Sale</h1>
 
           {/* Search and Filter Controls */}
           <div className="flex gap-3 mb-4">
