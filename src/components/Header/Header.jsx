@@ -6,6 +6,7 @@ import { logoutUser } from '../../redux/authSlice';
 import { useAuthUser } from '../../redux/useAuthUser';
 
 const Header = () => {
+  const [buildingsDropdownOpen, setBuildingsDropdownOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [sellDropdownOpen, setSellDropdownOpen] = useState(false);
   const [rentDropdownOpen, setRentDropdownOpen] = useState(false);
@@ -57,8 +58,8 @@ const Header = () => {
               <div className="relative">
                 <button
                   className="hover:text-blue-500 flex items-center"
-                  onClick={() => setDropdownOpen((open) => !open)}
-                  onBlur={() => setTimeout(() => setDropdownOpen(false), 150)}
+                  onClick={() => setBuildingsDropdownOpen((open) => !open)}
+                  onBlur={() => setTimeout(() => setBuildingsDropdownOpen(false), 150)}
                   type="button"
                 >
                   შენებადი ბინები
@@ -66,19 +67,19 @@ const Header = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
-                {dropdownOpen && (
+                {buildingsDropdownOpen && (
                   <div className="absolute left-0 mt-2 w-56 bg-white border border-gray-200 rounded shadow-lg z-20">
                     <Link
                       to="new-buildings"
                       className="block px-4 py-2 hover:bg-blue-50 text-gray-700"
-                      onClick={() => setDropdownOpen(false)}
+                      onClick={() => setBuildingsDropdownOpen(false)}
                     >
                       მშენებარე ბინები თბილისში
                     </Link>
                     <Link
                       to="/developers"
                       className="block px-4 py-2 hover:bg-blue-50 text-gray-700"
-                      onClick={() => setDropdownOpen(false)}
+                      onClick={() => setBuildingsDropdownOpen(false)}
                     >
                       დეველოპერები
                     </Link>
@@ -231,6 +232,13 @@ const Header = () => {
                       onClick={() => setDropdownOpen(false)}
                     >
                       ჩემი განცხადებები
+                    </Link>
+                    <Link
+                      to="/my/buildings"
+                      className="block px-4 py-2 hover:bg-blue-50 text-gray-700"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      ჩემი შენობები
                     </Link>
                     <button
                       onClick={() => {

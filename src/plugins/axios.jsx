@@ -9,12 +9,19 @@ const defaultInstance = axios.create({
     },
 });
 
+// Module-level variable for token
+let accessToken = null;
+
+// Function to set token from Redux
+export function setAccessToken(token) {
+    accessToken = token;
+}
+
 // Attach token to every request if available
 defaultInstance.interceptors.request.use(
     config => {
-        const token = localStorage.getItem('access_token');
-        if (token) {
-            config.headers['Authorization'] = `Bearer ${token}`;
+        if (accessToken) {
+            config.headers['Authorization'] = `Bearer ${accessToken}`;
         }
         return config;
     },

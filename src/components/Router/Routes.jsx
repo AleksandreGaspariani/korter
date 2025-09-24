@@ -1,13 +1,13 @@
 import React from 'react'
 import { Routes as RouterRoutes, Route, Outlet, Navigate } from 'react-router-dom'
 import Dashboard from '../../pages/Dashboard/Dashboard'
-import Map from '../Map/Map'
-import MapO from '../Map/MapO'
-import MapC from '../Map/MapC'
+// import Map from '../Map/Map'
+// import MapO from '../Map/MapO'
+// import MapC from '../Map/MapC'
 import MapS from '../Map/MapS'
 import PropertyListings from '../../pages/PropertyListings/PropertyListings'
 import DevelopersListing from '../../pages/Developers/Developers'
-import MapB from '../Map/MapB'
+// import MapB from '../Map/MapB'
 import AdminPanel from '../../pages/Admin/AdminPanel/AdminPanel'
 import PropertyDetail from '../../pages/PropertyListings/PropertyDetail/PropertyDetail'
 import SearchProperty from '../../pages/PropertyListings/SearchProperty/SearchProperty'
@@ -17,13 +17,16 @@ import AboutUs from '../../pages/About/AboutUs'
 import ContactUs from '../../pages/Contact/ContactUs'
 import AddProperty from '../../pages/PropertyListings/AddProperty/AddProperty'
 import MyPropertyListings from '../../pages/PropertyListings/MyPropertyListings/MyPropertyListings'
-
-// Add your admin subpages here:
-const AdminCategories = () => <div>Categories Management</div>
-const AdminDevelopments = () => <div>Developments Management</div>
-// ...add more as needed...
+import PropertyManagement from '../../pages/Admin/AdminPages/PropertyManagement'
+import UsersManager from '../../pages/Admin/AdminPages/UserManagement'
+import AdminDevelopments from '../../pages/Admin/AdminPages/AdminDevelopments'
+import { useAuthUser } from '../../redux/useAuthUser'
+import MyDevelopments from '../../pages/Developers/MyDevelopments'
 
 const Routes = () => {
+
+  const { user } = useAuthUser();
+
   return (
     <RouterRoutes>
       {/* Layout route */}
@@ -45,6 +48,13 @@ const Routes = () => {
           <MyPropertyListings />
         </RequireAuth>
       }/>
+
+      
+      <Route path='my/buildings' element={
+        <RequireAuth roles={['developer', 'admin']}>
+          <MyDevelopments />
+        </RequireAuth>
+      }/>
         
       {/* Admin Panel with nested routes */}
       <Route
@@ -55,8 +65,9 @@ const Routes = () => {
           </RequireAuth>
         }
       >
-        <Route path="categories" element={<AdminCategories />} />
         <Route path="developments" element={<AdminDevelopments />} />
+        <Route path="properties" element={<PropertyManagement />} />
+        <Route path="users" element={<UsersManager />} />
         {/* Add more nested admin routes here */}
       </Route>
 

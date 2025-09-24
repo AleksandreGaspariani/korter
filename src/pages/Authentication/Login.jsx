@@ -270,3 +270,5 @@ export default function AuthPage() {
     </div>
   )
 }
+
+// No changes needed here. Ensure your redux/authSlice.js does not use localStorage for the token.
