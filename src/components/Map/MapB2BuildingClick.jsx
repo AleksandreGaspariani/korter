@@ -24,6 +24,7 @@ const MapB2BuildingClick = ({ onBuildingSelect }) => {
   const [addModal, setAddModal] = useState({ visible: false, id: null, coordinates: null, x: 0, y: 0 });
   const [addForm, setAddForm] = useState({ title: '', description: '', image: '' });
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [selectedBuildingId, setSelectedBuildingId] = useState(null);
   const markersRef = useReactRef([]); // To keep track of marker instances
 
   useEffect(() => {
@@ -59,7 +60,7 @@ const MapB2BuildingClick = ({ onBuildingSelect }) => {
         setMapError(`Map failed to load: ${e.error.message}`);
       });
 
-      // Add 2D buildings layer after map loads
+      // Add 3D buildings layer after map loads
       map.current.on('load', () => {
         // Insert the layer beneath any symbol layer.
         const layers = map.current.getStyle().layers;
@@ -71,30 +72,42 @@ const MapB2BuildingClick = ({ onBuildingSelect }) => {
           }
         }
 
-        // 2D buildings layer with dynamic color
+        // 3D buildings layer with dynamic color
         map.current.addLayer(
           {
-            id: 'add-2d-buildings',
+            id: 'add-3d-buildings',
             source: 'composite',
             'source-layer': 'building',
             filter: ['==', 'extrude', 'true'],
-            type: 'fill',
+            type: 'fill-extrusion',
             paint: {
-              'fill-color': [
+              'fill-extrusion-color': [
                 'case',
+                ['boolean', ['feature-state', 'selected'], false], '#2196f3', // blue for selected
                 ['boolean', ['feature-state', 'marked'], false], '#2196f3', // blue for marked
                 ['boolean', ['feature-state', 'hover'], false], '#ff6600', // orange for hover
                 '#aaa'
               ],
-              'fill-opacity': 0.7
+              'fill-extrusion-height': [
+                'interpolate', ['linear'], ['zoom'],
+                15, 0,
+                16, ['get', 'height']
+              ],
+              'fill-extrusion-base': [
+                'interpolate', ['linear'], ['zoom'],
+                15, 0,
+                16, ['get', 'min_height']
+              ],
+              'fill-extrusion-opacity': 0.7
             }
           },
           labelLayerId
         );
 
+        // Update all event listeners to use 'add-3d-buildings' instead of 'add-2d-buildings'
         let hoveredId = null;
 
-        map.current.on('mousemove', 'add-2d-buildings', (e) => {
+        map.current.on('mousemove', 'add-3d-buildings', (e) => {
           map.current.getCanvas().style.cursor = 'pointer';
           if (e.features.length > 0) {
             const feature = e.features[0];
@@ -125,7 +138,7 @@ const MapB2BuildingClick = ({ onBuildingSelect }) => {
           }
         });
 
-        map.current.on('mouseleave', 'add-2d-buildings', () => {
+        map.current.on('mouseleave', 'add-3d-buildings', () => {
           map.current.getCanvas().style.cursor = 'grab';
           if (hoveredId !== null && !markedBuildings.some(b => b.id === hoveredId)) {
             map.current.setFeatureState(
@@ -141,7 +154,7 @@ const MapB2BuildingClick = ({ onBuildingSelect }) => {
         });
 
         // Mark building on CTRL+click and show add info modal
-        map.current.on('click', 'add-2d-buildings', (e) => {
+        map.current.on('click', 'add-3d-buildings', (e) => {
           if (e.features.length > 0) {
             const feature = e.features[0];
             const id = feature.id;
@@ -155,6 +168,22 @@ const MapB2BuildingClick = ({ onBuildingSelect }) => {
             // Call the callback with the building id and coordinates
             if (typeof onBuildingSelect === 'function') {
               onBuildingSelect(id, coordinates);
+            }
+            // Handle selection (not Ctrl+click)
+            if (!e.originalEvent.ctrlKey) {
+              // Deselect previous
+              if (selectedBuildingId && selectedBuildingId !== id) {
+                map.current.setFeatureState(
+                  { source: 'composite', sourceLayer: 'building', id: selectedBuildingId },
+                  { selected: false }
+                );
+              }
+              // Select new
+              setSelectedBuildingId(id);
+              map.current.setFeatureState(
+                { source: 'composite', sourceLayer: 'building', id },
+                { selected: true }
+              );
             }
             // Mark building on CTRL+click and show add info modal
             if (e.originalEvent.ctrlKey) {

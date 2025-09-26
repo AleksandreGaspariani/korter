@@ -6,6 +6,7 @@ import { FaBuilding, FaHome, FaCalendarDay, FaCheckCircle } from "react-icons/fa
 import axios from "../../../plugins/axios"
 import MapB2BuildingClick from "../../../components/Map/MapB2BuildingClick"
 import propertyLabels from "../PropertyLabels.json"
+import PropertyFormRequirementSchema from "../PropertyFormRequirementSchema"
 
 const typeMap = [
   { key: "Sell", label: "გაყიდვა", icon: FaBuilding },
@@ -35,6 +36,7 @@ const AddProperty = () => {
   const [formData, setFormData] = useState({})
   const [descLang, setDescLang] = useState("GE")
   const [currentStep, setCurrentStep] = useState("form-filling") // always show form
+  const [formErrors, setFormErrors] = useState({})
 
   const propertyStructure = structure.propertyStructure
   const currentTab = propertyStructure.tabs.find((tab) => tab.name === selectedTab)
@@ -124,9 +126,60 @@ const AddProperty = () => {
 
   const getLabel = (key, fallback) => propertyLabels[key] || fallback || key
 
+  // --- Validation helpers ---
+  // Import/build the requirement schema
+  // You can import buildRequirementSchema from PropertyFormRequirementSchema.jsx if you export it,
+  // or copy the logic here for direct use:
+  function extractRequiredKeys(obj, keys = []) {
+    if (Array.isArray(obj)) {
+      obj.forEach(item => extractRequiredKeys(item, keys));
+    } else if (typeof obj === "object" && obj !== null) {
+      if (
+        obj.key &&
+        obj.key !== "" &&
+        obj.prop !== "disabled_label" &&
+        obj.props !== "disabled_label"
+      ) {
+        keys.push(obj.key);
+      }
+      Object.values(obj).forEach(val => extractRequiredKeys(val, keys));
+    }
+    return keys;
+  }
+
+  function getRequirementKeys() {
+    const propertyConfig = getCurrentPropertyConfig();
+    if (!propertyConfig) return [];
+    const keys = [];
+    Object.values(propertyConfig).forEach(section => extractRequiredKeys(section, keys));
+    return keys;
+  }
+
+  function validateForm() {
+    const requiredKeys = getRequirementKeys();
+    const errors = {};
+    requiredKeys.forEach(key => {
+      if (
+        formData[key] === undefined ||
+        formData[key] === "" ||
+        (typeof formData[key] === "object" && formData[key] !== null && Object.keys(formData[key]).length === 0)
+      ) {
+        errors[key] = "ეს ველი აუცილებელია";
+      }
+    });
+    return errors;
+  }
+
   const renderFormField = (field) => {
-    const { key, type, label, options, prop } = field;
+    const { key, type, label, options, prop, props } = field;
     const mappedLabel = getLabel(key, label);
+
+    // Hide input if prop or props is "disabled_label"
+    if (prop === "disabled_label" || props === "disabled_label") {
+      return null;
+    }
+
+    const errorMsg = formErrors[key];
 
     if (type === "string") {
       return (
@@ -139,8 +192,9 @@ const AddProperty = () => {
             value={formData[key] || ""}
             onChange={(e) => handleInputChange(key, e.target.value)}
             disabled={prop === "disabled_label"}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-400 transition disabled:bg-gray-100"
+            className={`w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-400 transition disabled:bg-gray-100 ${errorMsg ? "border-red-500" : ""}`}
           />
+          {errorMsg && <div className="text-red-500 text-xs mt-1">{errorMsg}</div>}
         </div>
       )
     }
@@ -153,8 +207,9 @@ const AddProperty = () => {
             type="number"
             value={formData[key] || ""}
             onChange={(e) => handleInputChange(key, e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-400 transition"
+            className={`w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-400 transition ${errorMsg ? "border-red-500" : ""}`}
           />
+          {errorMsg && <div className="text-red-500 text-xs mt-1">{errorMsg}</div>}
         </div>
       )
     }
@@ -166,7 +221,7 @@ const AddProperty = () => {
           <select
             value={formData[key] || ""}
             onChange={(e) => handleInputChange(key, e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-400 transition"
+            className={`w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-400 transition ${errorMsg ? "border-red-500" : ""}`}
           >
             <option value="">Select {mappedLabel}</option>
             {options?.map((option, idx) => (
@@ -177,6 +232,7 @@ const AddProperty = () => {
               </option>
             ))}
           </select>
+          {errorMsg && <div className="text-red-500 text-xs mt-1">{errorMsg}</div>}
         </div>
       )
     }
@@ -193,6 +249,7 @@ const AddProperty = () => {
             />
             <span className="text-gray-700">{mappedLabel}</span>
           </label>
+          {errorMsg && <div className="text-red-500 text-xs mt-1">{errorMsg}</div>}
         </div>
       )
     }
@@ -381,6 +438,14 @@ const AddProperty = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate required fields
+    const errors = validateForm();
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
     // Prepare FormData for binary/image upload
     const form = new FormData();
 
@@ -536,7 +601,11 @@ const AddProperty = () => {
                 {/* Map placeholder */}
                 {propertyConfig.location && (
                   <div className="mb-8">
-                    <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center border overflow-hidden">
+                    <div
+                      className={`h-64 bg-gray-100 rounded-lg flex items-center justify-center border overflow-hidden ${
+                        formData.building_id_mapbox ? "border-2 border-green-500" : ""
+                      }`}
+                    >
                       <MapB2BuildingClick onBuildingSelect={handleBuildingSelect} />
                     </div>
                   </div>

@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FaSearch, FaHeart, FaGlobe, FaMapMarkerAlt, FaPlus, FaSignOutAlt, FaUserCircle, FaCog } from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
-import { logoutUser } from '../../redux/authSlice';
 import { useAuthUser } from '../../redux/useAuthUser';
+import { clearAuth } from '../../redux/authSlice';
 
 const Header = () => {
   const [buildingsDropdownOpen, setBuildingsDropdownOpen] = useState(false);
@@ -12,12 +12,12 @@ const Header = () => {
   const [rentDropdownOpen, setRentDropdownOpen] = useState(false);
   const [dailyDropdownOpen, setDailyDropdownOpen] = useState(false);
 
-  const { user, loading, error } = useAuthUser()
+  const user = useAuthUser()
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await dispatch(logoutUser());
+    await dispatch(clearAuth());
     navigate('/auth');
   };
 

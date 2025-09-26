@@ -1,10 +1,12 @@
 "use client"
 
-import {React, useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { FaEye, FaEyeSlash, FaLock, FaEnvelope, FaUser } from "react-icons/fa"
-import { useDispatch, useSelector } from 'react-redux'
-import { loginUser, registerUser } from '../../redux/authSlice'
 import { useNavigate } from "react-router-dom"
+import defaultInstance from "../../plugins/axios"
+import { useDispatch } from "react-redux"
+import { setAuth } from "../../redux/authSlice"
+import store from "../../redux/store"
 
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState("login")
@@ -18,17 +20,15 @@ export default function AuthPage() {
     lastName: "",
     rememberMe: false,
   })
-
-  const dispatch = useDispatch()
-  const { loading, error, user } = useSelector(state => state.auth)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   // Redirect to dashboard after successful login
   useEffect(() => {
-    if (user) {
-      navigate('/dashboard')
-    }
-  }, [user, navigate])
+    // Add your logic here if you need to check authentication state on mount
+  }, [])
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
@@ -36,14 +36,39 @@ export default function AuthPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setError(null)
+    setLoading(true)
     if (activeTab === "login") {
-      dispatch(loginUser({ email: formData.email, password: formData.password }))
+      try {
+        const response = await defaultInstance.post("login", {
+          email: formData.email,
+          password: formData.password
+        })
+        dispatch(setAuth({ 
+          user: response.data.user, 
+          token: response.data.access_token 
+        }))
+        setLoading(false)
+        navigate('/dashboard')
+      } catch (err) {
+        setLoading(false)
+        const data = err.response?.data
+        setError(data?.message || "Login failed")
+      }
     } else {
-      dispatch(registerUser({
-        name: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
-        password: formData.password,
-      }))
+      try {
+        const response = await defaultInstance.post("register", {
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          password: formData.password,
+        })
+        setLoading(false)
+        navigate('/dashboard')
+      } catch (err) {
+        setLoading(false)
+        const data = err.response?.data
+        setError(data?.message || "Registration failed")
+      }
     }
   }
 
@@ -222,24 +247,7 @@ export default function AuthPage() {
               {/* Show error if exists */}
               {error && (
                 <div className="text-red-500 text-sm mb-2">
-                  {/* Show general message for 422 validation errors */}
-                  {typeof error === "object" && error.errors && (
-                    <div className="mb-1 font-semibold">
-                      Please check your input and try again.
-                    </div>
-                  )}
-                  {/* If error is an object with 'errors' property, show each error */}
-                  {typeof error === "object" && error.errors
-                    ? Object.entries(error.errors).map(([field, messages]) =>
-                        messages.map((msg, idx) => (
-                          <div key={field + idx}>{msg}</div>
-                        ))
-                      )
-                    : typeof error === "object" && error.message
-                    ? error.message
-                    : typeof error === "string"
-                    ? error
-                    : null}
+                  {error}
                 </div>
               )}
               {/* Show loading spinner if loading */}

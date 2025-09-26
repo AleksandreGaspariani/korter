@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useAuthUser } from '../redux/useAuthUser';
 
 const defaultInstance = axios.create({
     baseURL: 'http://127.0.0.1:8000/api/', // Replace with your API base URL
@@ -9,19 +10,13 @@ const defaultInstance = axios.create({
     },
 });
 
-// Module-level variable for token
-let accessToken = null;
-
-// Function to set token from Redux
-export function setAccessToken(token) {
-    accessToken = token;
-}
-
-// Attach token to every request if available
+// Attach token to every request if available in localStorage
 defaultInstance.interceptors.request.use(
     config => {
-        if (accessToken) {
-            config.headers['Authorization'] = `Bearer ${accessToken}`;
+        const auth = JSON.parse(localStorage.getItem('auth') || '{}');
+        const token = auth.token;
+        if (token) {
+            config.headers['Authorization'] = `Bearer ${token}`;
         }
         return config;
     },

@@ -2,10 +2,8 @@ import { useAuthUser } from '../../redux/useAuthUser'
 import { Navigate, useLocation } from 'react-router-dom'
 
 const RequireAuth = ({ children, roles }) => {
-  const { user, loading } = useAuthUser()
+  const user = useAuthUser()
   const location = useLocation()
-
-  if (loading) return null // or a loading spinner
 
   // Not authenticated
   if (!user) {

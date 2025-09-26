@@ -25,7 +25,7 @@ import MyDevelopments from '../../pages/Developers/MyDevelopments'
 
 const Routes = () => {
 
-  const { user } = useAuthUser();
+  const user = useAuthUser();
 
   return (
     <RouterRoutes>
@@ -35,7 +35,7 @@ const Routes = () => {
       <Route path="map" element={<MapS />} />
       <Route path="new-buildings" element={<PropertyListings />} />
       <Route path='developers' element={<DevelopersListing />} />
-      <Route path="auth" element={<Login />} />
+      <Route path="auth" element={user ? <Navigate to="/dashboard" replace /> : <Login />} />
       <Route path='about' element={<AboutUs />} />
       <Route path='contact' element={<ContactUs />} />
       <Route path='add-property' element={

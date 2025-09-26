@@ -14,8 +14,14 @@ import {
   FaBath,
   FaRulerCombined,
   FaDollarSign,
+  FaTag,
+  FaUser,
 } from "react-icons/fa"
 import axios from "../../plugins/axios"
+import BuildingFormModal from "./BuildingForms/BuildingForm"
+
+const inputClass =
+  "w-full border border-gray-300 rounded-lg px-3 py-2 pl-10 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
 
 const MyDevelopments = () => {
   const [buildings, setBuildings] = useState([])
@@ -87,7 +93,9 @@ const MyDevelopments = () => {
       views: 0,
       mainImage: "",
       badge: "",
-      location: { lat: 0, lng: 0 },
+      location: { lat: null, lng: null }, // always present as object
+      images: [], // always present as array
+      floorPlans: [], // always present as array
       description_ge: "",
       description_ru: "",
       description_en: "",
@@ -124,7 +132,7 @@ const MyDevelopments = () => {
   const handleSaveBuilding = async (buildingData) => {
     try {
       if (modalType === "create") {
-        await axios.post("/admin/buildings", buildingData)
+        await axios.post("/building", buildingData)
       } else {
         await axios.put(`/admin/buildings/${selectedBuilding.id}`, buildingData)
       }
@@ -156,39 +164,42 @@ const MyDevelopments = () => {
     }
   }
 
-  const filteredBuildings = buildings.filter((building) => {
-    const matchesSearch =
-      building.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      building.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      building.developer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      building.district?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      building.city?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredBuildings = Array.isArray(buildings)
+    ? buildings.filter((building) => {
+        const matchesSearch =
+          building.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          building.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          building.developer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          building.district?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          building.city?.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesStatus = !filters.status || building.status === filters.status
-    const matchesDevelopment = !filters.development || building.development_id === Number.parseInt(filters.development)
-    const matchesBedrooms = !filters.bedrooms || building.bedrooms === Number.parseInt(filters.bedrooms)
+        const matchesStatus = !filters.status || building.status === filters.status
+        const matchesDevelopment =
+          !filters.development || building.development_id === Number.parseInt(filters.development)
+        const matchesBedrooms = !filters.bedrooms || building.bedrooms === Number.parseInt(filters.bedrooms)
 
-    let matchesPriceRange = true
-    if (filters.priceRange) {
-      const price = building.price || 0
-      switch (filters.priceRange) {
-        case "0-100000":
-          matchesPriceRange = price <= 100000
-          break
-        case "100000-300000":
-          matchesPriceRange = price > 100000 && price <= 300000
-          break
-        case "300000-500000":
-          matchesPriceRange = price > 300000 && price <= 500000
-          break
-        case "500000+":
-          matchesPriceRange = price > 500000
-          break
-      }
-    }
+        let matchesPriceRange = true
+        if (filters.priceRange) {
+          const price = building.price || 0
+          switch (filters.priceRange) {
+            case "0-100000":
+              matchesPriceRange = price <= 100000
+              break
+            case "100000-300000":
+              matchesPriceRange = price > 100000 && price <= 300000
+              break
+            case "300000-500000":
+              matchesPriceRange = price > 300000 && price <= 500000
+              break
+            case "500000+":
+              matchesPriceRange = price > 500000
+              break
+          }
+        }
 
-    return matchesSearch && matchesStatus && matchesDevelopment && matchesBedrooms && matchesPriceRange
-  })
+        return matchesSearch && matchesStatus && matchesDevelopment && matchesBedrooms && matchesPriceRange
+      })
+    : []
 
   if (loading) {
     return (
@@ -258,7 +269,7 @@ const MyDevelopments = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
             >
               <option value="">All Developments</option>
-              {developments.map((dev) => (
+              {(Array.isArray(developments) ? developments : []).map((dev) => (
                 <option key={dev.id} value={dev.id}>
                   {dev.name}
                 </option>
@@ -437,449 +448,14 @@ const MyDevelopments = () => {
       )}
 
       {/* Building Modal */}
-      {showModal && (
-        <BuildingModal
-          building={selectedBuilding}
-          developments={developments}
-          users={users}
-          type={modalType}
-          onSave={handleSaveBuilding}
-          onClose={() => setShowModal(false)}
-        />
-      )}
-    </div>
-  )
-}
-
-// Building Modal Component
-const BuildingModal = ({ building, developments, users, type, onSave, onClose }) => {
-  const [formData, setFormData] = useState({
-    title: building?.title || "",
-    address: building?.address || "",
-    district: building?.district || "",
-    city: building?.city || "",
-    developer: building?.developer || "",
-    price: building?.price || 0,
-    pricePerSqm: building?.pricePerSqm || 0,
-    area: building?.area || 0,
-    bedrooms: building?.bedrooms || 0,
-    bathrooms: building?.bathrooms || 0,
-    floor: building?.floor || 0,
-    totalFloors: building?.totalFloors || 0,
-    status: building?.status || "available",
-    rating: building?.rating || 0,
-    views: building?.views || 0,
-    mainImage: building?.mainImage || "",
-    badge: building?.badge || "",
-    location: building?.location || { lat: 0, lng: 0 },
-    description_ge: building?.description_ge || "",
-    description_ru: building?.description_ru || "",
-    description_en: building?.description_en || "",
-    development_id: building?.development_id || null,
-  })
-
-  const [activeTab, setActiveTab] = useState("basic")
-
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
-
-  const handleLocationChange = (field, value) => {
-    setFormData((prev) => ({
-      ...prev,
-      location: { ...prev.location, [field]: Number.parseFloat(value) || 0 },
-    }))
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    onSave(formData)
-  }
-
-  const isReadOnly = type === "view"
-  const statusOptions = ["available", "sold", "reserved", "under_construction"]
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-6xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-800">
-            {type === "create" ? "Create Building" : type === "edit" ? "Edit Building" : "Building Details"}
-          </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl">
-            ×
-          </button>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex border-b border-gray-200 mb-6">
-          <button
-            onClick={() => setActiveTab("basic")}
-            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
-              activeTab === "basic"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            Basic Info
-          </button>
-          <button
-            onClick={() => setActiveTab("details")}
-            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
-              activeTab === "details"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            Details & Location
-          </button>
-          <button
-            onClick={() => setActiveTab("descriptions")}
-            className={`px-4 py-2 font-medium text-sm border-b-2 transition-colors ${
-              activeTab === "descriptions"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            Descriptions
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-          {/* Basic Info Tab */}
-          {activeTab === "basic" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Basic Information</h3>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Title *</label>
-                  <input
-                    type="text"
-                    value={formData.title}
-                    onChange={(e) => handleInputChange("title", e.target.value)}
-                    disabled={isReadOnly}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Developer</label>
-                  <input
-                    type="text"
-                    value={formData.developer}
-                    onChange={(e) => handleInputChange("developer", e.target.value)}
-                    disabled={isReadOnly}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Development</label>
-                  <select
-                    value={formData.development_id || ""}
-                    onChange={(e) =>
-                      handleInputChange("development_id", e.target.value ? Number.parseInt(e.target.value) : null)
-                    }
-                    disabled={isReadOnly}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                  >
-                    <option value="">Select Development</option>
-                    {developments.map((dev) => (
-                      <option key={dev.id} value={dev.id}>
-                        {dev.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => handleInputChange("status", e.target.value)}
-                    disabled={isReadOnly}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                  >
-                    {statusOptions.map((status) => (
-                      <option key={status} value={status}>
-                        {status.replace("_", " ").toUpperCase()}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Badge</label>
-                  <input
-                    type="text"
-                    value={formData.badge}
-                    onChange={(e) => handleInputChange("badge", e.target.value)}
-                    disabled={isReadOnly}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                    placeholder="e.g., New, Hot Deal, Premium"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Main Image URL</label>
-                  <input
-                    type="url"
-                    value={formData.mainImage}
-                    onChange={(e) => handleInputChange("mainImage", e.target.value)}
-                    disabled={isReadOnly}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Pricing & Statistics</h3>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Price ($)</label>
-                    <input
-                      type="number"
-                      value={formData.price}
-                      onChange={(e) => handleInputChange("price", Number.parseFloat(e.target.value) || 0)}
-                      disabled={isReadOnly}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Price per m² ($)</label>
-                    <input
-                      type="number"
-                      value={formData.pricePerSqm}
-                      onChange={(e) => handleInputChange("pricePerSqm", Number.parseFloat(e.target.value) || 0)}
-                      disabled={isReadOnly}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Rating (0-5)</label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="5"
-                      step="0.1"
-                      value={formData.rating}
-                      onChange={(e) => handleInputChange("rating", Number.parseFloat(e.target.value) || 0)}
-                      disabled={isReadOnly}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Views</label>
-                    <input
-                      type="number"
-                      value={formData.views}
-                      onChange={(e) => handleInputChange("views", Number.parseInt(e.target.value) || 0)}
-                      disabled={isReadOnly}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Details & Location Tab */}
-          {activeTab === "details" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Location Details</h3>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                  <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) => handleInputChange("address", e.target.value)}
-                    disabled={isReadOnly}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">District</label>
-                    <input
-                      type="text"
-                      value={formData.district}
-                      onChange={(e) => handleInputChange("district", e.target.value)}
-                      disabled={isReadOnly}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
-                    <input
-                      type="text"
-                      value={formData.city}
-                      onChange={(e) => handleInputChange("city", e.target.value)}
-                      disabled={isReadOnly}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Latitude</label>
-                    <input
-                      type="number"
-                      step="any"
-                      value={formData.location.lat}
-                      onChange={(e) => handleLocationChange("lat", e.target.value)}
-                      disabled={isReadOnly}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Longitude</label>
-                    <input
-                      type="number"
-                      step="any"
-                      value={formData.location.lng}
-                      onChange={(e) => handleLocationChange("lng", e.target.value)}
-                      disabled={isReadOnly}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Property Details</h3>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Area (m²)</label>
-                    <input
-                      type="number"
-                      value={formData.area}
-                      onChange={(e) => handleInputChange("area", Number.parseFloat(e.target.value) || 0)}
-                      disabled={isReadOnly}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Bedrooms</label>
-                    <input
-                      type="number"
-                      value={formData.bedrooms}
-                      onChange={(e) => handleInputChange("bedrooms", Number.parseInt(e.target.value) || 0)}
-                      disabled={isReadOnly}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Bathrooms</label>
-                    <input
-                      type="number"
-                      value={formData.bathrooms}
-                      onChange={(e) => handleInputChange("bathrooms", Number.parseInt(e.target.value) || 0)}
-                      disabled={isReadOnly}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Floor</label>
-                    <input
-                      type="number"
-                      value={formData.floor}
-                      onChange={(e) => handleInputChange("floor", Number.parseInt(e.target.value) || 0)}
-                      disabled={isReadOnly}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Total Floors</label>
-                    <input
-                      type="number"
-                      value={formData.totalFloors}
-                      onChange={(e) => handleInputChange("totalFloors", Number.parseInt(e.target.value) || 0)}
-                      disabled={isReadOnly}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Descriptions Tab */}
-          {activeTab === "descriptions" && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold">Property Descriptions</h3>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description (Georgian)</label>
-                <textarea
-                  value={formData.description_ge}
-                  onChange={(e) => handleInputChange("description_ge", e.target.value)}
-                  disabled={isReadOnly}
-                  rows={4}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                  placeholder="Enter description in Georgian..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description (Russian)</label>
-                <textarea
-                  value={formData.description_ru}
-                  onChange={(e) => handleInputChange("description_ru", e.target.value)}
-                  disabled={isReadOnly}
-                  rows={4}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                  placeholder="Enter description in Russian..."
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Description (English)</label>
-                <textarea
-                  value={formData.description_en}
-                  onChange={(e) => handleInputChange("description_en", e.target.value)}
-                  disabled={isReadOnly}
-                  rows={4}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500 disabled:bg-gray-100"
-                  placeholder="Enter description in English..."
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex items-center justify-end gap-3 mt-6 pt-6 border-t">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              {isReadOnly ? "Close" : "Cancel"}
-            </button>
-            {!isReadOnly && (
-              <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                {type === "create" ? "Create Building" : "Save Changes"}
-              </button>
-            )}
-          </div>
-        </form>
-      </div>
+      <BuildingFormModal
+        building={selectedBuilding}
+        developments={developments}
+        type={modalType}
+        isOpen={showModal}
+        onSave={handleSaveBuilding}
+        onClose={() => setShowModal(false)}
+      />
     </div>
   )
 }
