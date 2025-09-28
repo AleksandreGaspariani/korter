@@ -6,12 +6,11 @@ import { FaBuilding, FaHome, FaCalendarDay, FaCheckCircle } from "react-icons/fa
 import axios from "../../../plugins/axios"
 import MapB2BuildingClick from "../../../components/Map/MapB2BuildingClick"
 import propertyLabels from "../PropertyLabels.json"
-import PropertyFormRequirementSchema from "../PropertyFormRequirementSchema"
 
 const typeMap = [
   { key: "Sell", label: "გაყიდვა", icon: FaBuilding },
-  { key: "Rent", label: "გაქირავება", icon: FaHome },
-  { key: "Daily", label: "დღიურად", icon: FaCalendarDay }
+  // { key: "Rent", label: "გაქირავება", icon: FaHome },
+  // { key: "Daily", label: "დღიურად", icon: FaCalendarDay }
 ]
 
 const categoryLabels = {
@@ -21,7 +20,7 @@ const categoryLabels = {
 }
 
 const defaultCategory = "living"
-const defaultPropertyType = "flat"
+const defaultPropertyType = "building_complex"
 
 const listingTypeMap = {
   Sell: "sell",
@@ -102,26 +101,30 @@ const AddProperty = () => {
 
   // Update the handleSingleSelect function to track per-group selection
   const handleSingleSelect = (groupType, selectedKey, value) => {
-    // First, update which key is selected for this specific group
     setSelectedGroupKeys(prev => ({
       ...prev,
       [groupType]: selectedKey
     }))
-    
-    // Extract the value from the key (e.g., "rooms_1" -> "1", "bedrooms_4plus" -> "4+")
     let actualValue = selectedKey;
-    
     if (selectedKey.includes('_')) {
-      // Get everything after the last underscore
       actualValue = selectedKey.split('_').pop();
     }
-    
-    // Then update the form data using standardized keys
     setFormData(prev => ({
       ...prev,
-      // Use the group type directly as the key (room_count, bedroom_count, bathroom_count)
       [groupType]: actualValue
     }))
+    // For plan_type, ensure only one is true at a time and set 1/0
+    if (groupType === "plan_type") {
+      setFormData(prev => {
+        const updated = { ...prev }
+        const planTypes = ["studio", "penthouse", "multifloor", "freeplan"]
+        planTypes.forEach(pt => {
+          updated[pt] = pt === selectedKey ? 1 : 0
+        })
+        updated["plan_type"] = selectedKey // store selected plan_type key
+        return updated
+      })
+    }
   }
 
   const getLabel = (key, fallback) => propertyLabels[key] || fallback || key
@@ -147,6 +150,22 @@ const AddProperty = () => {
     return keys;
   }
 
+  function getRequiredKeysFromStructure(propertyConfig) {
+    const keys = [];
+    function recurse(obj) {
+      if (Array.isArray(obj)) {
+        obj.forEach(recurse);
+      } else if (typeof obj === "object" && obj !== null) {
+        if (obj.key && obj.required === true) {
+          keys.push(obj.key);
+        }
+        Object.values(obj).forEach(recurse);
+      }
+    }
+    recurse(propertyConfig);
+    return keys;
+  }
+
   function getRequirementKeys() {
     const propertyConfig = getCurrentPropertyConfig();
     if (!propertyConfig) return [];
@@ -156,8 +175,11 @@ const AddProperty = () => {
   }
 
   function validateForm() {
-    const requiredKeys = getRequirementKeys();
+    const propertyConfig = getCurrentPropertyConfig();
+    const requiredKeys = getRequiredKeysFromStructure(propertyConfig);
     const errors = {};
+
+    // Validate required fields (marked with "required": true)
     requiredKeys.forEach(key => {
       if (
         formData[key] === undefined ||
@@ -167,6 +189,32 @@ const AddProperty = () => {
         errors[key] = "ეს ველი აუცილებელია";
       }
     });
+
+    // Validate group selections: plan_type, room_count, bedroom_count, bathroom_count
+    const groupKeys = ["plan_type", "room_count", "bedroom_count", "bathroom_count"];
+    if (propertyConfig && propertyConfig.flat_details) {
+      propertyConfig.flat_details.forEach(detail => {
+        if (typeof detail === "object" && !detail.key) {
+          Object.entries(detail).forEach(([group, options]) => {
+            if (groupKeys.includes(group)) {
+              // For plan_type, check if any of the planTypes is true
+              if (group === "plan_type") {
+                const planTypes = ["studio", "penthouse", "multifloor", "freeplan"];
+                const selected = planTypes.some(pt => formData[pt]);
+                if (!selected) {
+                  errors["plan_type"] = "აირჩიეთ გეგმარება";
+                }
+              } else {
+                // For select groups, check if formData[group] is set
+                if (!formData[group]) {
+                  errors[group] = "აირჩიეთ მნიშვნელობა";
+                }
+              }
+            }
+          });
+        }
+      });
+    }
     return errors;
   }
 
@@ -288,9 +336,9 @@ const AddProperty = () => {
                             <button
                               key={`${nestedKey}-${nestedIdx}`}
                               type="button"
-                              onClick={() => handleSingleSelect(nestedKey, nestedField.key, !formData[nestedField.key])}
+                              onClick={() => handleSingleSelect(nestedKey, nestedField.key, true)}
                               className={`px-4 py-2 rounded-lg border transition-all ${
-                                selectedGroupKeys[nestedKey] === nestedField.key && formData[nestedField.key]
+                                selectedGroupKeys[nestedKey] === nestedField.key
                                   ? "bg-blue-500 text-white border-blue-500"
                                   : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
                               }`}
@@ -450,11 +498,11 @@ const AddProperty = () => {
     const form = new FormData();
 
     // List of boolean fields to normalize as 1/0
-    const booleanFields = ['balcony', 'terrace'];
+    const booleanFields = ['balcony', 'terrace', 'studio', 'penthouse', 'multifloor', 'freeplan'];
 
     Object.entries(formData).forEach(([key, value]) => {
       if (key === "photos") return;
-      // Send balcony/terrace as 1/0
+      // Send plan_type booleans and balcony/terrace as 1/0
       if (booleanFields.includes(key)) {
         form.append(key, value ? 1 : 0);
       } else {
@@ -595,6 +643,17 @@ const AddProperty = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Form Section */}
             <div className="lg:col-span-2">
+              {/* Show error summary if there are errors */}
+              {Object.keys(formErrors).length > 0 && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded text-red-700">
+                  <div className="font-bold mb-2">გთხოვთ შეავსოთ ყველა აუცილებელი ველი:</div>
+                  <ul className="list-disc ml-6">
+                    {Object.entries(formErrors).map(([key, msg]) => (
+                      <li key={key}>{propertyLabels[key] || key}: {msg}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {/* Change form to use handleSubmit */}
               <form className="bg-white rounded-xl shadow p-8" onSubmit={handleSubmit}>
                 {propertyConfig.location && renderFormSection("location", propertyConfig.location, "ადგილმდებარეობა")}
@@ -673,21 +732,19 @@ const AddProperty = () => {
                           </button>
                         </div>
                       ))}
-                      {Array.from({ length: Math.max(0, 4 - (formData.photos ? formData.photos.length : 0)) }).map((_, index) => (
-                        <label
-                          key={index}
-                          className="border-2 border-dashed border-gray-300 rounded-lg h-32 flex items-center justify-center cursor-pointer hover:border-blue-400 transition-colors"
-                        >
-                          <input
-                            type="file"
-                            multiple
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            className="hidden"
-                          />
-                          <span className="text-gray-400 text-2xl">+</span>
-                        </label>
-                      ))}
+                      {/* Always show an additional input for adding images */}
+                      <label
+                        className="border-2 border-dashed border-gray-300 rounded-lg h-32 flex items-center justify-center cursor-pointer hover:border-blue-400 transition-colors"
+                      >
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          className="hidden"
+                        />
+                        <span className="text-gray-400 text-2xl">+</span>
+                      </label>
                     </div>
                     {propertyConfig.photo_video_descriptions && (
                       <div className="mb-4">
@@ -736,7 +793,17 @@ const AddProperty = () => {
                             ))}
                         </select>
                       </div>
-                      <p className="text-xs text-gray-500 mt-1">≤ 108 427 ₾</p>
+                    </div>
+                    {/* New input for price_per_square_meter */}
+                    <div className="mb-4">
+                      <label className="block text-gray-700 font-medium mb-2">ფასი 1 მ²-ზე</label>
+                      <input
+                        type="text"
+                        value={formData.price_per_square_meter || ""}
+                        onChange={(e) => handleInputChange("price_per_square_meter", e.target.value)}
+                        placeholder="₾ 1 000"
+                        className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-400 transition"
+                      />
                     </div>
                     <div className="mb-4">
                       <label className="flex items-center gap-2">
@@ -757,60 +824,60 @@ const AddProperty = () => {
                     <h3 className="text-lg font-semibold mb-4">კონტაქტები</h3>
                     <p className="text-sm text-gray-600 mb-4">აარჩიეთ აქაუნთის ტიპი Homeinfo-ზე</p>
                     <div className="grid grid-cols-2 gap-4 mb-4">
-                    <label className={`border border-gray-300 rounded-lg p-4 cursor-pointer flex flex-col gap-2 ${formData.userType === "agent" ? "ring-2 ring-blue-500" : ""}`}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <input
-                          type="radio"
-                          name="userType"
-                          value="agent"
-                          checked={formData.userType === "agent"}
-                          onChange={() => handleInputChange("userType", "agent")}
-                          className="accent-blue-600"
-                        />
-                        <span className="font-medium">აგენტი</span>
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        <div className="flex items-start gap-1 text-green-600 mb-1">
-                          <FaCheckCircle className="text-green-500 mt-1" />
-                          <span>ობიექტის მართვის პანელი Homeinfo -ზე</span>
+                      <label className={`border border-gray-300 rounded-lg p-4 cursor-pointer flex flex-col gap-2 ${formData.is_agent === true ? "ring-2 ring-blue-500" : ""}`}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <input
+                            type="radio"
+                            name="is_agent"
+                            value="agent"
+                            checked={formData.is_agent === true}
+                            onChange={() => setFormData(prev => ({ ...prev, is_agent: true }))}
+                            className="accent-blue-600"
+                          />
+                          <span className="font-medium">აგენტი</span>
                         </div>
-                        <div className="flex items-start gap-1 text-green-600">
-                          <FaCheckCircle className="text-green-500 mt-1" />
-                          <span>მეტი განცხადების დადების საშვალება.</span>
+                        <div className="text-sm text-gray-600">
+                          <div className="flex items-start gap-1 text-green-600 mb-1">
+                            <FaCheckCircle className="text-green-500 mt-1" />
+                            <span>ობიექტის მართვის პანელი Homeinfo -ზე</span>
+                          </div>
+                          <div className="flex items-start gap-1 text-green-600">
+                            <FaCheckCircle className="text-green-500 mt-1" />
+                            <span>მეტი განცხადების დადების საშვალება.</span>
+                          </div>
                         </div>
-                      </div>
-                    </label>
+                      </label>
 
-                    <label className={`border border-gray-300 rounded-lg p-4 cursor-pointer flex flex-col gap-2 ${formData.userType === "owner" ? "ring-2 ring-blue-500" : ""}`}>
-                      <div className="flex items-center gap-2 mb-2">
-                        <input
-                          type="radio"
-                          name="userType"
-                          value="owner"
-                          checked={formData.userType === "owner"}
-                          onChange={() => handleInputChange("userType", "owner")}
-                          className="accent-blue-600"
-                        />
-                        <span className="font-medium">მესაკუთრე</span>
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        <div className="flex items-start gap-1 text-green-600 mb-1">
-                          <FaCheckCircle className="text-green-500 mt-1" />
-                          <span>მხოლოდ უძრავი ონქების მესაკუთრეთათვის</span>
+                      <label className={`border border-gray-300 rounded-lg p-4 cursor-pointer flex flex-col gap-2 ${formData.is_agent === false ? "ring-2 ring-blue-500" : ""}`}>
+                        <div className="flex items-center gap-2 mb-2">
+                          <input
+                            type="radio"
+                            name="is_agent"
+                            value="owner"
+                            checked={formData.is_agent === false}
+                            onChange={() => setFormData(prev => ({ ...prev, is_agent: false }))}
+                            className="accent-blue-600"
+                          />
+                          <span className="font-medium">მესაკუთრე</span>
                         </div>
-                        <small className="text-gray-500">
-                          ჩვენ შეგვიძლია ნებისმიერ დროს მოვითხოვოთ საკუთრების უფლების დამადასტურებელი დოკუმენტები
-                        </small>
-                      </div>
-                    </label>
-                  </div>
+                        <div className="text-sm text-gray-600">
+                          <div className="flex items-start gap-1 text-green-600 mb-1">
+                            <FaCheckCircle className="text-green-500 mt-1" />
+                            <span>მხოლოდ უძრავი ონქების მესაკუთრეთათვის</span>
+                          </div>
+                          <small className="text-gray-500">
+                            ჩვენ შეგვიძლია ნებისმიერ დროს მოვითხოვოთ საკუთრების უფლების დამადასტურებელი დოკუმენტები
+                          </small>
+                        </div>
+                      </label>
+                    </div>
                     <div className="mb-4">
                       <label className="block text-gray-700 font-medium mb-2">როგორ დაგიკავშირდეთ ? *</label>
                       <input
                         type="text"
                         value={formData.contact_name || ""}
                         onChange={(e) => handleInputChange("contact_name", e.target.value)}
-                        placeholder="Aleksandre Gasparyan"
+                        placeholder="John Doe"
                         className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-400 transition"
                       />
                     </div>
@@ -823,10 +890,24 @@ const AddProperty = () => {
                         </div>
                         <input
                           type="tel"
-                          value={formData.contact_phone || ""}
-                          onChange={(e) => handleInputChange("contact_phone", e.target.value)}
-                          placeholder="579 12 59 16"
+                          value={
+                            formData.contact_phone
+                              ? formData.contact_phone
+                                  .replace(/\s/g, "")
+                                  .replace(/(\d{3})(\d{2})(\d{2})(\d{2})/, "$1 $2 $3 $4")
+                                  .trim()
+                              : ""
+                          }
+                          onChange={(e) => {
+                            let val = e.target.value.replace(/\s/g, ""); // remove spaces
+                            if (val.startsWith("+995")) val = val.slice(4); // remove +995 if pasted
+                            val = val.replace(/\D/g, ""); // remove non-digits
+                            if (val.length > 9) val = val.slice(0, 9); // max 9 digits
+                            setFormData(prev => ({ ...prev, contact_phone: val }));
+                          }}
+                          placeholder="555 55 55 55"
                           className="flex-1 border border-gray-300 rounded-r-lg px-4 py-3 focus:outline-none focus:border-blue-400 transition"
+                          maxLength={12}
                         />
                       </div>
                       {/* <p className="text-xs text-gray-500 mt-1">

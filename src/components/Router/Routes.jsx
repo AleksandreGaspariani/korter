@@ -24,13 +24,15 @@ import { useAuthUser } from '../../redux/useAuthUser'
 import MyDevelopments from '../../pages/Developers/MyDevelopments'
 
 const Routes = () => {
-
   const user = useAuthUser();
 
   return (
     <RouterRoutes>
       {/* Layout route */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      {/* Remove or modify the redirect below */}
+      {/* <Route path="/" element={<Navigate to="/dashboard" replace />} /> */}
+      {/* Example: Show Dashboard only if authenticated, else show Login or Landing */}
+      <Route path="/" element={user ? <Dashboard /> : <Login />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="map" element={<MapS />} />
       <Route path="new-buildings" element={<PropertyListings />} />

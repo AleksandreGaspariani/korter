@@ -16,6 +16,7 @@ import FloorPlans from "./FloorPlans"
 import MapB from "../../../components/Map/MapB"
 import PropertyListings from "../PropertyListings"
 import PropertyCardGrid from "../../../components/PropertyCardGrid/PropertyCardGrid"
+import defaultInstance from "../../../plugins/axios"
 
 // Dummy properties array
 const properties = [
@@ -57,28 +58,59 @@ const properties = [
   },
 ]
 
-// Helper to get property by id
-const getPropertyById = (id) => properties.find(p => p.id === Number(id))
+const PropertyDetail = ({ id: propId, onBack }) => {
 
-const PropertyDetail = ({ property, id: propId, onBack }) => {
+  const [property, setProperty] = useState(null)
+
   // Get id from URL params if not provided as prop
   const { id: urlId } = useParams()
   const id = propId || urlId
 
-  const selectedProperty = property || (id ? getPropertyById(id) : null)
+  // Fetch property details from API
+  useEffect(() => {
+    if (id) {
+      defaultInstance.get(`/property/${id}`).then(response => {
+        // If response.data is an array, take the first item
+        const prop = response.data.data;
+        console.log("Fetched Property Data:", prop);
+        setProperty(prop);
+      }).catch(error => {
+        console.error('Error fetching property details:', error);
+      });
+    }
+  }, [id]);
 
+  
+  const selectedProperty = property;
+  
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isFavorited, setIsFavorited] = useState(false)
 
-  // Use selectedProperty.image if available for main image
-  const propertyImages = selectedProperty?.images || [
-    selectedProperty?.image,
-    "/modern-residential-complex-aerial.png",
-    "/modern-apartment-exterior.png",
-    "/residential-complex-courtyard.png",
-    "/apartment-living-room.png",
-    "/modern-kitchen.png",
-  ].filter(Boolean)
+  console.log("Property ID:", id, "Property Data:", property)
+  // Use selectedProperty.photos for main image gallery
+
+  // Scroll to top when selectedProperty changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" })
+  }, [selectedProperty])
+
+  // Move propertyImages calculation here so it only runs after property is loaded
+  let propertyImages = [];
+  if (selectedProperty && selectedProperty.photos) {
+    let photosArr = [];
+    if (Array.isArray(selectedProperty.photos)) {
+      photosArr = selectedProperty.photos;
+    } else if (typeof selectedProperty.photos === "string") {
+      try {
+        photosArr = JSON.parse(selectedProperty.photos);
+      } catch {
+        photosArr = [];
+      }
+    }
+    propertyImages = photosArr.map(
+      (img) => `${import.meta.env.VITE_APP_URI}/storage/${img}`
+    );
+  }
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev === propertyImages.length - 1 ? 0 : prev + 1))
@@ -92,10 +124,17 @@ const PropertyDetail = ({ property, id: propId, onBack }) => {
     setIsFavorited(!isFavorited)
   }
 
-  // Scroll to top when selectedProperty changes
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" })
-  }, [selectedProperty])
+  // Loading screen
+  if (!property) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-lg text-gray-700">იტვირთება...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 w-100 w-100">
@@ -124,6 +163,7 @@ const PropertyDetail = ({ property, id: propId, onBack }) => {
                   src={propertyImages[currentImageIndex] || "/placeholder.svg"}
                   alt={`Property view ${currentImageIndex + 1}`}
                   className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                  style={{ objectFit: 'contain' }}
                 />
 
                 {/* Image Navigation */}
@@ -252,12 +292,12 @@ const PropertyDetail = ({ property, id: propId, onBack }) => {
               </div>
 
               <div className="space-y-3">
-                <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center">
+                <button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center">
                   <FiPhone className="mr-2" size={18} />
                   ნომრის ჩვენება
                 </button>
 
-                <button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center">
+                <button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center">
                   <FiMessageSquare className="mr-2" size={18} />
                   კითხვის დასმა
                 </button>

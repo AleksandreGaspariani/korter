@@ -1,67 +1,46 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { FaPhone, FaRegCommentDots, FaHeart } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import defaultInstance from '../../plugins/axios';
 
-const properties = [
-  {
-    id: 1,
-    image: '../../../images/flat1.jpg',
-    title: 'მეფე მირიანის ქუჩა, 98',
-    district: 'საბურთალო',
-    price: '99 969 ₾-დან',
-    perM2: '2 840 ₾/მ²-ზე',
-    developer: 'მალაყოს',
-  },
-  {
-    id: 2,
-    image: '../../../images/flat2.jpg',
-    title: 'ალბლების ქ., 39',
-    district: 'ისანი',
-    price: 'ფასი მოცემულია',
-    perM2: '2 488 ₾/მ²-ზე',
-    developer: 'K3 დეველოპმენტი',
-  },
-  {
-    id: 3,
-    image: '../../../images/flat3.jpg',
-    title: 'მოსკოვის გამზირი, 9ა',
-    district: 'ისანი',
-    price: '205 834 ₾-დან',
-    perM2: '2 975 ₾/მ²-ზე',
-    developer: 'New Line Construction',
-  },
-  {
-    id: 4,
-    image: '../../../images/flat4.png',
-    title: 'Pillar Park Samgori',
-    district: 'კახეთის გზატკეცილი 1ა',
-    price: 'ფასი მოცემულია',
-    perM2: '3 245 ₾/მ²-ზე',
-    developer: 'Pillar Group, Pillar Park',
-  },
-];
+const PropertyCard = ({ property, apiUri }) => {
+  // Parse photos JSON string and get first image
+  let firstImage = '';
+  if (property.photos) {
+    try {
+      const photosArr = JSON.parse(property.photos);
+      if (photosArr.length > 0) {
+        firstImage = `${apiUri}/storage/${photosArr[0]}`;
+      }
+    } catch (e) {
+      // fallback if parsing fails
+      firstImage = '';
+    }
+  }
 
-const PropertyCard = ({ property }) => {
   return (
     <Link to={`/property/${property.id}`}>
       <div className="bg-white border rounded-xl shadow-sm hover:shadow-md transition cursor-pointer">
         <div className="relative">
-          <img src={property.image} alt={property.title} className="w-full h-48 object-cover rounded-t-xl" />
+          <img src={firstImage} alt={property.development_name} className="w-full h-48 object-cover rounded-t-xl" />
           <FaHeart className="absolute top-3 right-3 text-gray-600 hover:text-red-500 cursor-pointer" />
         </div>
         <div className="p-4 space-y-1">
           <h3 className="font-bold text-gray-900 text-sm">{property.title}</h3>
-          <p className="text-xs text-gray-500">{property.district}</p>
-          <p className="text-gray-900 font-semibold text-sm">{property.price} <span className="text-gray-500 font-normal text-xs">{property.perM2}</span></p>
-          <p className="text-xs text-gray-500">{property.developer}</p>
-          <div className="flex space-x-2 pt-2">
-            <button className="flex items-center text-sm border rounded px-3 py-1 hover:bg-gray-50">
+          <p className="text-xs text-gray-500">{property.city}, {property.address}</p>
+          <p className="text-gray-900 font-semibold text-sm">ფასი მოცემულია <span className="text-gray-500 font-normal text-xs">{property.price / 10} ₾/მ²-ზე</span></p>
+          <p className="text-xs text-gray-500">{property.development_name}</p>
+          {/* <div className="flex space-x-2 pt-2">
+            <a
+              href={property?.contact_phone ? `tel:${property.contact_phone}` : undefined}
+              className="flex items-center text-sm border rounded px-3 py-1 hover:bg-gray-50"
+            >
               <FaPhone className="mr-1" /> დარეკვა
-            </button>
+            </a>
             <button className="flex items-center text-sm border rounded px-3 py-1 hover:bg-gray-50">
               <FaRegCommentDots className="mr-1" /> მიწერა
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
     </Link>
@@ -69,6 +48,22 @@ const PropertyCard = ({ property }) => {
 };
 
 const PropertyCardGrid = () => {
+  const [propertyData, setPropertyData] = useState(null);
+  // Use Vite env variable
+  const apiUri = import.meta.env.VITE_APP_URI;
+
+  const fetchProperties = () => {
+    defaultInstance.get('/property').then(response => {
+      setPropertyData(response.data.data);
+    }).catch(error => {
+      console.error('Error fetching properties:', error);
+    });
+  };
+
+  useEffect(() => {
+    fetchProperties();
+  }, []);
+
   return (
     <div className="container mx-auto py-8 px-4 md:px-12">
       <div className="flex justify-between items-center mb-4">
@@ -76,8 +71,8 @@ const PropertyCardGrid = () => {
         <Link to={'/new-buildings'} className="text-sm text-blue-500 hover:underline">ყველა პროექტი</Link>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        {properties.map((property, idx) => (
-          <PropertyCard key={idx} property={property} />
+        {propertyData && propertyData.map((property, idx) => (
+          <PropertyCard key={idx} property={property} apiUri={apiUri} />
         ))}
       </div>
     </div>

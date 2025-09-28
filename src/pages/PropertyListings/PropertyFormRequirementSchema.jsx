@@ -20,7 +20,7 @@ function extractRequiredKeys(obj, keys = []) {
 }
 
 // Build schema for all listing types and property types
-function buildRequirementSchema(structure) {
+export function buildRequirementSchema(structure) {
   const schema = {};
   const tabs = structure.propertyStructure.tabs;
   tabs.forEach(tab => {
