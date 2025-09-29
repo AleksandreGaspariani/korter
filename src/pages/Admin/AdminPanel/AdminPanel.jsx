@@ -18,6 +18,11 @@ const adminLinks = [
     label: "Manage Properties",
     icon: FaHome,
   },
+  {
+    to: "/admin-panel/building_companies", // Default admin panel route\
+    label: "Building Companies",
+    icon: FaBuilding,
+  }
   // ...add more links as needed...
 ]
 

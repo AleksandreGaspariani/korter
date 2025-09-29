@@ -4,11 +4,11 @@ import { Building2, Home, MapPin, Key, Users, TrendingUp } from "lucide-react"
 const PromotionalSection = () => {
   const carouselItems = [
     { title: "საცხოვრებელი კომპლექსები", count: "541 მშენებარე", icon: Building2, color: "bg-blue-100 text-blue-600" },
-    { title: "იყიდება ბინები", count: "16,437 ბინა", icon: Home, color: "bg-indigo-100 text-indigo-600" },
+    // { title: "იყიდება ბინები", count: "16,437 ბინა", icon: Home, color: "bg-indigo-100 text-indigo-600" },
     { title: "კოტეჯები", count: "24 კოტეჯი", icon: Home, color: "bg-cyan-100 text-cyan-600" },
-    { title: "სახლების გაყიდვა", count: "583 სახლი", icon: MapPin, color: "bg-sky-100 text-sky-600" },
-    { title: "ქირავდება ბინები", count: "27,445 ბინა", icon: Key, color: "bg-blue-100 text-blue-600" },
-    { title: "ქირავდება სახლები", count: "774 სახლი", icon: Users, color: "bg-indigo-100 text-indigo-600" },
+    { title: "კომერციული ფართები", count: "583 კომერციული ფართი", icon: Building2, color: "bg-sky-100 text-sky-600" },
+    // { title: "ქირავდება ბინები", count: "27,445 ბინა", icon: Key, color: "bg-blue-100 text-blue-600" },
+    // { title: "ქირავდება სახლები", count: "774 სახლი", icon: Users, color: "bg-indigo-100 text-indigo-600" },
   ]
 
   return (

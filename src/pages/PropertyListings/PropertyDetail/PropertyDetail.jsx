@@ -17,6 +17,7 @@ import MapB from "../../../components/Map/MapB"
 import PropertyListings from "../PropertyListings"
 import PropertyCardGrid from "../../../components/PropertyCardGrid/PropertyCardGrid"
 import defaultInstance from "../../../plugins/axios"
+import defAgentImage from '../../../../public/images/agent.webp'
 
 // Dummy properties array
 const properties = [
@@ -85,7 +86,7 @@ const PropertyDetail = ({ id: propId, onBack }) => {
   
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [isFavorited, setIsFavorited] = useState(false)
-
+  const [showPhoneNumber, setShowPhoneNumber] = useState(false);
   console.log("Property ID:", id, "Property Data:", property)
   // Use selectedProperty.photos for main image gallery
 
@@ -124,6 +125,27 @@ const PropertyDetail = ({ id: propId, onBack }) => {
     setIsFavorited(!isFavorited)
   }
 
+  // Add number formatting helper function
+  const formatNumber = (num) => {
+    if (!num) return "არ არის მოცემული";
+    // Format number with space as thousands separator, no decimals
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  }
+
+  // Currency mapper function
+  const getCurrencySymbol = (currencyCode) => {
+    if (!currencyCode) return "";
+    
+    const currencyMap = {
+      "USD": "$",
+      "GEL": "₾",
+      "EUR": "€",
+      // Add more currencies as needed
+    };
+    
+    return currencyMap[currencyCode] || currencyCode;
+  }
+
   // Loading screen
   if (!property) {
     return (
@@ -135,6 +157,33 @@ const PropertyDetail = ({ id: propId, onBack }) => {
       </div>
     );
   }
+
+  console.log('Selected Property:', selectedProperty);
+
+  // Handle phone button click
+  const handlePhoneClick = () => {
+    const phone = selectedProperty?.user?.user_information?.phone;
+    
+    if (!showPhoneNumber) {
+      // First click: Show the number
+      setShowPhoneNumber(true);
+    } else if (phone) {
+      // Second click: Make the call
+      window.location.href = `tel:${phone}`;
+    }
+  };
+  
+  // Handle WhatsApp click
+  const handleWhatsAppClick = () => {
+    const phone = selectedProperty?.user?.user_information?.phone;
+    
+    if (phone) {
+      // Format phone number for WhatsApp (remove spaces, +, etc.)
+      const formattedPhone = phone.replace(/\s+/g, '').replace(/^\+/, '');
+      // Open WhatsApp with the phone number
+      window.open(`https://wa.me/${formattedPhone}`, '_blank');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 w-100 w-100">
@@ -221,8 +270,8 @@ const PropertyDetail = ({ id: propId, onBack }) => {
             <div className="bg-white rounded-xl shadow-lg p-6">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 mb-1">{selectedProperty?.title || "Ezo"}</h1>
-                  <p className="text-gray-600">{selectedProperty?.district || "თბილისი"}</p>
+                  <h1 className="text-2xl font-bold text-gray-900 mb-1">{selectedProperty?.development_name || "N\A"}</h1>
+                  <p className="text-gray-600">{selectedProperty?.city || "N\A"}</p>
                 </div>
                 <div className="flex space-x-2">
                   <button className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all">
@@ -247,7 +296,7 @@ const PropertyDetail = ({ id: propId, onBack }) => {
 
                 <div className="flex items-center text-gray-700">
                   <FiCalendar className="mr-2 text-green-600" size={16} />
-                  <span>3 საზღვრო შენდება, უახლოესი ჩაბარება 4 კვ. 2026</span>
+                  <span>{selectedProperty?.description_ge || "N\A"}</span>
                 </div>
               </div>
             </div>
@@ -257,11 +306,19 @@ const PropertyDetail = ({ id: propId, onBack }) => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">მთლიანობაში ბინები</p>
-                  <p className="text-xl font-bold text-gray-900">{selectedProperty?.price || "$85,361-დან"}</p>
+                  <p className="text-xl font-bold text-gray-900">
+                    {selectedProperty?.price 
+                      ? `${formatNumber(selectedProperty.price)} ${getCurrencySymbol(selectedProperty?.currency)} -დან` 
+                      : "არ არის მოცემული"}
+                  </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-1">ფასი მ²-ზე</p>
-                  <p className="text-xl font-bold text-gray-900">{selectedProperty?.perM2 || "$1,154-დან"}</p>
+                  <p className="text-xl font-bold text-gray-900">
+                    {selectedProperty?.square_per_meter 
+                      ? `${formatNumber(selectedProperty.square_per_meter)} ${getCurrencySymbol(selectedProperty?.currency)}`
+                      : "არ არის მოცემული"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -281,28 +338,31 @@ const PropertyDetail = ({ id: propId, onBack }) => {
             <div className="bg-white rounded-xl shadow-lg p-6">
               <div className="flex items-center mb-4">
                 <img
-                  src="/professional-woman-agent.png"
+                  src={selectedProperty?.user?.user_information?.profile_image_url || defAgentImage}
                   alt="Agent"
                   className="w-12 h-12 rounded-full object-cover mr-3"
                 />
                 <div>
-                  <h3 className="font-semibold text-gray-900">ლიდია მჭავარიანი</h3>
-                  <p className="text-sm text-gray-600">უძრავი ქონების კონსულტანტი Homeinfo</p>
+                  <h3 className="font-semibold text-gray-900">{selectedProperty?.user?.name}</h3>
+                  <p className="text-sm text-gray-600">{selectedProperty?.user?.bio}</p>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center">
+                <button 
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center"
+                  onClick={handlePhoneClick}
+                >
                   <FiPhone className="mr-2" size={18} />
-                  ნომრის ჩვენება
+                  {showPhoneNumber 
+                    ? (selectedProperty?.user?.user_information?.phone || "No phone number available") 
+                    : "ნომრის ჩვენება"}
                 </button>
 
-                <button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center">
-                  <FiMessageSquare className="mr-2" size={18} />
-                  კითხვის დასმა
-                </button>
-
-                <button className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center">
+                <button 
+                  className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center"
+                  onClick={handleWhatsAppClick}
+                >
                   <BsWhatsapp className="mr-2" size={18} />
                   WhatsApp
                 </button>

@@ -22,6 +22,8 @@ import UsersManager from '../../pages/Admin/AdminPages/UserManagement'
 import AdminDevelopments from '../../pages/Admin/AdminPages/AdminDevelopments'
 import { useAuthUser } from '../../redux/useAuthUser'
 import MyDevelopments from '../../pages/Developers/MyDevelopments'
+import Profile from '../../pages/Profile/Profile'
+import BuildingCompanies from '../../pages/Admin/AdminPages/BuildingCompanies'
 
 const Routes = () => {
   const user = useAuthUser();
@@ -51,7 +53,12 @@ const Routes = () => {
         </RequireAuth>
       }/>
 
-      
+      <Route path='profile' element={
+        <RequireAuth roles={['regular_user', 'admin', 'developer']}>
+          <Profile />
+        </RequireAuth>
+      }/>
+
       <Route path='my/buildings' element={
         <RequireAuth roles={['developer', 'admin']}>
           <MyDevelopments />
@@ -70,6 +77,7 @@ const Routes = () => {
         <Route path="developments" element={<AdminDevelopments />} />
         <Route path="properties" element={<PropertyManagement />} />
         <Route path="users" element={<UsersManager />} />
+        <Route path="building_companies" element={<BuildingCompanies />} />
         {/* Add more nested admin routes here */}
       </Route>
 

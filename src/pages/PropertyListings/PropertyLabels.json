@@ -66,5 +66,8 @@
   "living": "საცხოვრებელი უძრავი ქონება",
   "commercial": "კომერციული უძრავი ქონება",
   "building_complex": "საცხოვრებელი კომპლექსი",
-  "price_per_square_meter": "ფასი კვადრატულ მეტრზე"
+  "price_per_square_meter": "ფასი კვადრატულ მეტრზე",
+  "description_ge": "აღწერა ქართულად",
+  "description_en": "აღწერა ინგლისურად",
+  "description_ru": "აღწერა რუსულად"
 }

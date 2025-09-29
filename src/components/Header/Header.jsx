@@ -227,19 +227,28 @@ const Header = () => {
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-30">
                     <Link
+                      to="/profile"
+                      className="block px-4 py-2 hover:bg-blue-50 text-gray-700"
+                      onClick={() => setDropdownOpen(false)}
+                    >
+                      ჩემი პროფილი
+                    </Link>
+                    <Link
                       to="/my/listings"
                       className="block px-4 py-2 hover:bg-blue-50 text-gray-700"
                       onClick={() => setDropdownOpen(false)}
                     >
                       ჩემი განცხადებები
                     </Link>
-                    <Link
-                      to="/my/buildings"
-                      className="block px-4 py-2 hover:bg-blue-50 text-gray-700"
-                      onClick={() => setDropdownOpen(false)}
-                    >
-                      ჩემი შენობები
-                    </Link>
+                    {user?.roles.some(r => r.slug === 'developer' || r.slug === 'admin') && (
+                      <Link
+                        to="/my/buildings"
+                        className="block px-4 py-2 hover:bg-blue-50 text-gray-700"
+                        onClick={() => setDropdownOpen(false)}
+                      >
+                        ჩემი შენობები
+                      </Link>
+                    )}
                     <button
                       onClick={() => {
                         setDropdownOpen(false);

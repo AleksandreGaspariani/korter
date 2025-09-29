@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import ProfileCard from './ProfileCard'
+import defaultInstance from '../../plugins/axios'
 
 const agents = [
   {
@@ -68,7 +69,22 @@ const agents = [
   },
 ]
 
+
+
 const AgentsSection = () => {
+
+  const [agents, setAgents] = useState([]);
+  const apiUri = import.meta.env.VITE_APP_URI;
+  React.useEffect(() => {
+    defaultInstance.get('/agents')
+      .then(response => {
+        setAgents(response.data.data);
+      })
+      .catch(error => {
+        console.error('Error fetching agents:', error);
+      });
+  }, []);
+
   return (
     <div className="container mx-auto py-8 px-4 md:px-12">
       <div className="flex justify-between items-center mb-4">
@@ -79,11 +95,11 @@ const AgentsSection = () => {
         {agents.map((agent, idx) => (
           <div key={idx}>
             <ProfileCard
-              image={agent.image}
+              image={agent?.user_information?.profile_image_url}
               name={agent.name}
-              title={agent.title}
-              followers={`${agent.followers} ობიექტი`}
-              following={agent.description}
+              title={'აგენტი'}
+              followers={`${agent.property_count} ობიექტი`}
+              following={agent?.user_information?.bio}
             />
           </div>
         ))}

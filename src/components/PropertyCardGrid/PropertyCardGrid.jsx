@@ -5,24 +5,12 @@ import defaultInstance from '../../plugins/axios';
 
 const PropertyCard = ({ property, apiUri }) => {
   // Parse photos JSON string and get first image
-  let firstImage = '';
-  if (property.photos) {
-    try {
-      const photosArr = JSON.parse(property.photos);
-      if (photosArr.length > 0) {
-        firstImage = `${apiUri}/storage/${photosArr[0]}`;
-      }
-    } catch (e) {
-      // fallback if parsing fails
-      firstImage = '';
-    }
-  }
 
   return (
     <Link to={`/property/${property.id}`}>
       <div className="bg-white border rounded-xl shadow-sm hover:shadow-md transition cursor-pointer">
         <div className="relative">
-          <img src={firstImage} alt={property.development_name} className="w-full h-48 object-cover rounded-t-xl" />
+          <img src={property?.first_image} alt={property.development_name} className="w-full h-48 object-cover rounded-t-xl" />
           <FaHeart className="absolute top-3 right-3 text-gray-600 hover:text-red-500 cursor-pointer" />
         </div>
         <div className="p-4 space-y-1">

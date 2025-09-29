@@ -799,8 +799,8 @@ const AddProperty = () => {
                       <label className="block text-gray-700 font-medium mb-2">ფასი 1 მ²-ზე</label>
                       <input
                         type="text"
-                        value={formData.price_per_square_meter || ""}
-                        onChange={(e) => handleInputChange("price_per_square_meter", e.target.value)}
+                        value={formData.square_per_meter || ""}
+                        onChange={(e) => handleInputChange("square_per_meter", e.target.value)}
                         placeholder="₾ 1 000"
                         className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-400 transition"
                       />
