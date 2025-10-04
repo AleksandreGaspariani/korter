@@ -85,6 +85,9 @@ const AgentsSection = () => {
       });
   }, []);
 
+  const storage = import.meta.env.VITE_APP_URI + '/storage/';
+  
+
   return (
     <div className="container mx-auto py-8 px-4 md:px-12">
       <div className="flex justify-between items-center mb-4">

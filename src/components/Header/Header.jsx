@@ -62,7 +62,7 @@ const Header = () => {
                   onBlur={() => setTimeout(() => setBuildingsDropdownOpen(false), 150)}
                   type="button"
                 >
-                  შენებადი ბინები
+                  შენებადი კომპლექსები
                   <svg className="ml-1 w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
                   </svg>
@@ -74,7 +74,7 @@ const Header = () => {
                       className="block px-4 py-2 hover:bg-blue-50 text-gray-700"
                       onClick={() => setBuildingsDropdownOpen(false)}
                     >
-                      მშენებარე ბინები თბილისში
+                      მშენებარე კომპლექსები თბილისში
                     </Link>
                     <Link
                       to="/developers"
@@ -102,16 +102,22 @@ const Header = () => {
                 </button>
                 {sellDropdownOpen && (
                   <div className="absolute left-0 mt-2 w-56 bg-white border border-gray-200 rounded shadow-lg z-20">
-                    <Link to="/search/apartments?category=flats&type=sale" className="block px-4 py-2 hover:bg-blue-50 text-gray-700" onClick={() => setSellDropdownOpen(false)}>
+                    {/* <Link to="/search/apartments?category=flats&type=sale" className="block px-4 py-2 hover:bg-blue-50 text-gray-700" onClick={() => setSellDropdownOpen(false)}>
                       იყიდება ბინები
                     </Link>
                     <Link to="/search/apartments?category=houses&type=sale" className="block px-4 py-2 hover:bg-blue-50 text-gray-700" onClick={() => setSellDropdownOpen(false)}>
                       სახლების გაყიდვა
-                    </Link>
+                    </Link> */}
                     <Link to="/search/apartments?category=commercial&type=sale" className="block px-4 py-2 hover:bg-blue-50 text-gray-700" onClick={() => setSellDropdownOpen(false)}>
-                      იყიდება კომერციული ფართები
+                      კომერციული ფართები
                     </Link>
-                    <Link to="/search/apartments?category=office&type=sale" className="block px-4 py-2 hover:bg-blue-50 text-gray-700" onClick={() => setSellDropdownOpen(false)}>
+                    <Link to="/search/apartments?category=building_complex&type=sale" className="block px-4 py-2 hover:bg-blue-50 text-gray-700" onClick={() => setSellDropdownOpen(false)}>
+                      მშენებარე კომპლექსები
+                    </Link>
+                    <Link to="/search/apartments?category=cottage&type=sale" className="block px-4 py-2 hover:bg-blue-50 text-gray-700" onClick={() => setSellDropdownOpen(false)}>
+                      კოტეჯები
+                    </Link>
+                    {/* <Link to="/search/apartments?category=office&type=sale" className="block px-4 py-2 hover:bg-blue-50 text-gray-700" onClick={() => setSellDropdownOpen(false)}>
                       ოფისის გაყიდვა
                     </Link>
                     <Link to="/search/apartments?category=warehouse&type=sale" className="block px-4 py-2 hover:bg-blue-50 text-gray-700" onClick={() => setSellDropdownOpen(false)}>
@@ -125,13 +131,13 @@ const Header = () => {
                     </Link>
                     <Link to="/developers" className="block px-4 py-2 hover:bg-blue-50 text-gray-700" onClick={() => setSellDropdownOpen(false)}>
                       დეველოპმენტები
-                    </Link>
+                    </Link> */}
                   </div>
                 )}
               </div>
 
               {/* გაქირავება dropdown */}
-              <div className="relative">
+              {/* <div className="relative">
                 <button
                   className="hover:text-blue-500 flex items-center"
                   onClick={() => setRentDropdownOpen((open) => !open)}
@@ -168,10 +174,10 @@ const Header = () => {
                     </Link>
                   </div>
                 )}
-              </div>
+              </div> */}
 
               {/* დღიურად dropdown */}
-              <div className="relative">
+              {/* <div className="relative">
                 <button
                   className="hover:text-blue-500 flex items-center"
                   onClick={() => setDailyDropdownOpen((open) => !open)}
@@ -193,7 +199,7 @@ const Header = () => {
                     </Link>
                   </div>
                 )}
-              </div>
+              </div> */}
             </nav>
           </div>
 

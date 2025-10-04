@@ -2,7 +2,14 @@
 
 import { useState } from "react"
 import structure from "../PropertyStructure.json"
-import { FaBuilding, FaHome, FaCalendarDay, FaCheckCircle } from "react-icons/fa"
+import {
+  FaBuilding,
+  FaHome,
+  FaCalendarDay,
+  FaCheckCircle,
+  FaExpandArrowsAlt,
+  FaCompressArrowsAlt,
+} from "react-icons/fa"
 import axios from "../../../plugins/axios"
 import MapB2BuildingClick from "../../../components/Map/MapB2BuildingClick"
 import propertyLabels from "../PropertyLabels.json"
@@ -16,7 +23,7 @@ const typeMap = [
 const categoryLabels = {
   living: "საცხოვრებელი უძრავი ქონება",
   commercial: "კომერციული უძრავი ქონება",
-  garage: "გარაჟი და პარკინგი"
+  garage: "გარაჟი და პარკინგი",
 }
 
 const defaultCategory = "living"
@@ -25,8 +32,8 @@ const defaultPropertyType = "building_complex"
 const listingTypeMap = {
   Sell: "sell",
   Rent: "rent",
-  Daily: "daily"
-};
+  Daily: "daily",
+}
 
 const AddProperty = () => {
   const [selectedTab, setSelectedTab] = useState("Sell")
@@ -36,6 +43,8 @@ const AddProperty = () => {
   const [descLang, setDescLang] = useState("GE")
   const [currentStep, setCurrentStep] = useState("form-filling") // always show form
   const [formErrors, setFormErrors] = useState({})
+  const [mapExpanded, setMapExpanded] = useState(false)
+  const [coordinates, setCoordinates] = useState(null) // Declare coordinates variable
 
   const propertyStructure = structure.propertyStructure
   const currentTab = propertyStructure.tabs.find((tab) => tab.name === selectedTab)
@@ -49,6 +58,7 @@ const AddProperty = () => {
     setFormData({})
     setDescLang("GE")
     setCurrentStep("form-filling")
+    setCoordinates(null) // Reset coordinates on tab change
   }
 
   // Reset form on category/type change
@@ -58,6 +68,7 @@ const AddProperty = () => {
     setFormData({})
     setDescLang("GE")
     setCurrentStep("form-filling")
+    setCoordinates(null) // Reset coordinates on property type change
   }
 
   const handleInputChange = (key, value) => {
@@ -67,17 +78,17 @@ const AddProperty = () => {
   // Image upload handler
   const handleImageUpload = (e) => {
     const files = Array.from(e.target.files)
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      photos: [...(prev.photos || []), ...files]
+      photos: [...(prev.photos || []), ...files],
     }))
   }
 
   // Remove image handler (optional)
   const handleRemoveImage = (idx) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      photos: (prev.photos || []).filter((_, i) => i !== idx)
+      photos: (prev.photos || []).filter((_, i) => i !== idx),
     }))
   }
 
@@ -96,29 +107,29 @@ const AddProperty = () => {
     room_count: null,
     bedroom_count: null,
     bathroom_count: null,
-    plan_type: null
+    plan_type: null,
   })
 
   // Update the handleSingleSelect function to track per-group selection
   const handleSingleSelect = (groupType, selectedKey, value) => {
-    setSelectedGroupKeys(prev => ({
+    setSelectedGroupKeys((prev) => ({
       ...prev,
-      [groupType]: selectedKey
+      [groupType]: selectedKey,
     }))
-    let actualValue = selectedKey;
-    if (selectedKey.includes('_')) {
-      actualValue = selectedKey.split('_').pop();
+    let actualValue = selectedKey
+    if (selectedKey.includes("_")) {
+      actualValue = selectedKey.split("_").pop()
     }
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [groupType]: actualValue
+      [groupType]: actualValue,
     }))
     // For plan_type, ensure only one is true at a time and set 1/0
     if (groupType === "plan_type") {
-      setFormData(prev => {
+      setFormData((prev) => {
         const updated = { ...prev }
         const planTypes = ["studio", "penthouse", "multifloor", "freeplan"]
-        planTypes.forEach(pt => {
+        planTypes.forEach((pt) => {
           updated[pt] = pt === selectedKey ? 1 : 0
         })
         updated["plan_type"] = selectedKey // store selected plan_type key
@@ -130,104 +141,97 @@ const AddProperty = () => {
   const getLabel = (key, fallback) => propertyLabels[key] || fallback || key
 
   // --- Validation helpers ---
-  // Import/build the requirement schema
-  // You can import buildRequirementSchema from PropertyFormRequirementSchema.jsx if you export it,
-  // or copy the logic here for direct use:
+
   function extractRequiredKeys(obj, keys = []) {
     if (Array.isArray(obj)) {
-      obj.forEach(item => extractRequiredKeys(item, keys));
+      obj.forEach((item) => extractRequiredKeys(item, keys))
     } else if (typeof obj === "object" && obj !== null) {
-      if (
-        obj.key &&
-        obj.key !== "" &&
-        obj.prop !== "disabled_label" &&
-        obj.props !== "disabled_label"
-      ) {
-        keys.push(obj.key);
+      if (obj.key && obj.key !== "" && obj.prop !== "disabled_label" && obj.props !== "disabled_label") {
+        keys.push(obj.key)
       }
-      Object.values(obj).forEach(val => extractRequiredKeys(val, keys));
+      Object.values(obj).forEach((val) => extractRequiredKeys(val, keys))
     }
-    return keys;
+    return keys
   }
 
   function getRequiredKeysFromStructure(propertyConfig) {
-    const keys = [];
+    const keys = []
     function recurse(obj) {
       if (Array.isArray(obj)) {
-        obj.forEach(recurse);
+        obj.forEach(recurse)
       } else if (typeof obj === "object" && obj !== null) {
         if (obj.key && obj.required === true) {
-          keys.push(obj.key);
+          keys.push(obj.key)
         }
-        Object.values(obj).forEach(recurse);
+        Object.values(obj).forEach(recurse)
       }
     }
-    recurse(propertyConfig);
-    return keys;
+    recurse(propertyConfig)
+    return keys
   }
 
   function getRequirementKeys() {
-    const propertyConfig = getCurrentPropertyConfig();
-    if (!propertyConfig) return [];
-    const keys = [];
-    Object.values(propertyConfig).forEach(section => extractRequiredKeys(section, keys));
-    return keys;
+    const propertyConfig = getCurrentPropertyConfig()
+    if (!propertyConfig) return []
+    const keys = []
+    Object.values(propertyConfig).forEach((section) => extractRequiredKeys(section, keys))
+    return keys
   }
 
   function validateForm() {
-    const propertyConfig = getCurrentPropertyConfig();
-    const requiredKeys = getRequiredKeysFromStructure(propertyConfig);
-    const errors = {};
+    const propertyConfig = getCurrentPropertyConfig()
+    const requiredKeys = getRequiredKeysFromStructure(propertyConfig)
+    const errors = {}
 
     // Validate required fields (marked with "required": true)
-    requiredKeys.forEach(key => {
+    requiredKeys.forEach((key) => {
       if (
         formData[key] === undefined ||
         formData[key] === "" ||
         (typeof formData[key] === "object" && formData[key] !== null && Object.keys(formData[key]).length === 0)
       ) {
-        errors[key] = "ეს ველი აუცილებელია";
+        errors[key] = "ეს ველი აუცილებელია"
       }
-    });
+    })
 
     // Validate group selections: plan_type, room_count, bedroom_count, bathroom_count
-    const groupKeys = ["plan_type", "room_count", "bedroom_count", "bathroom_count"];
+    const groupKeys = ["plan_type", "room_count", "bedroom_count", "bathroom_count"]
     if (propertyConfig && propertyConfig.flat_details) {
-      propertyConfig.flat_details.forEach(detail => {
+      propertyConfig.flat_details.forEach((detail) => {
         if (typeof detail === "object" && !detail.key) {
           Object.entries(detail).forEach(([group, options]) => {
             if (groupKeys.includes(group)) {
               // For plan_type, check if any of the planTypes is true
               if (group === "plan_type") {
-                const planTypes = ["studio", "penthouse", "multifloor", "freeplan"];
-                const selected = planTypes.some(pt => formData[pt]);
+                const planTypes = ["studio", "penthouse", "multifloor", "freeplan"]
+                const selected = planTypes.some((pt) => formData[pt])
                 if (!selected) {
-                  errors["plan_type"] = "აირჩიეთ გეგმარება";
+                  errors["plan_type"] = "აირჩიეთ გეგმარება"
                 }
               } else {
                 // For select groups, check if formData[group] is set
                 if (!formData[group]) {
-                  errors[group] = "აირჩიეთ მნიშვნელობა";
+                  errors[group] = "აირჩიეთ მნიშვნელობა"
                 }
               }
             }
-          });
+          })
         }
-      });
+      })
     }
-    return errors;
+    return errors
   }
 
   const renderFormField = (field) => {
-    const { key, type, label, options, prop, props } = field;
-    const mappedLabel = getLabel(key, label);
+    const { key, type, label, options, prop, props } = field
+    const mappedLabel = getLabel(key, label)
 
     // Hide input if prop or props is "disabled_label"
     if (prop === "disabled_label" || props === "disabled_label") {
-      return null;
+      return null
     }
 
-    const errorMsg = formErrors[key];
+    const errorMsg = formErrors[key]
 
     if (type === "string") {
       return (
@@ -274,9 +278,7 @@ const AddProperty = () => {
             <option value="">Select {mappedLabel}</option>
             {options?.map((option, idx) => (
               <option key={idx} value={typeof option === "object" ? option.value : option}>
-                {typeof option === "object"
-                  ? getLabel(option.value, option.label)
-                  : getLabel(option, option)}
+                {typeof option === "object" ? getLabel(option.value, option.label) : getLabel(option, option)}
               </option>
             ))}
           </select>
@@ -306,16 +308,11 @@ const AddProperty = () => {
   }
 
   const renderFormSection = (sectionKey, sectionData, title) => {
-    const mappedTitle = getLabel(sectionKey, title);
+    const mappedTitle = getLabel(sectionKey, title)
     if (!sectionData || sectionData.length === 0) return null
 
     // Single-select groups: plan_type, room_count, bedroom_count, bathroom_count
-    const singleSelectGroups = [
-      "plan_type",
-      "room_count",
-      "bedroom_count",
-      "bathroom_count"
-    ]
+    const singleSelectGroups = ["plan_type", "room_count", "bedroom_count", "bathroom_count"]
 
     return (
       <div className="mb-8">
@@ -325,7 +322,9 @@ const AddProperty = () => {
             if (typeof field === "object" && !field.key) {
               return Object.entries(field).map(([nestedKey, nestedFields]) => (
                 <div key={`${sectionKey}-${nestedKey}-${idx}`} className="col-span-full">
-                  <h4 className="text-md font-medium mb-3 capitalize">{getLabel(nestedKey, nestedKey.replace("_", " "))}</h4>
+                  <h4 className="text-md font-medium mb-3 capitalize">
+                    {getLabel(nestedKey, nestedKey.replace("_", " "))}
+                  </h4>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {nestedFields.map((nestedField, nestedIdx) => {
                       // Single-select logic for plan_type, room_count, bedroom_count, bathroom_count
@@ -382,18 +381,18 @@ const AddProperty = () => {
   const getSelectedPropertyTypeLabel = () => {
     // Find the label for the selected property type
     for (const category of Object.values(propertyTypes)) {
-      const found = category.find((prop) => prop.key === selectedPropertyType);
-      if (found) return getLabel(found.key, found.label);
+      const found = category.find((prop) => prop.key === selectedPropertyType)
+      if (found) return getLabel(found.key, found.label)
     }
-    return getLabel(selectedPropertyType);
-  };
+    return getLabel(selectedPropertyType)
+  }
 
   const PropertyPreview = () => (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
       <div className="relative">
-        {(formData.photos && formData.photos.length > 0) ? (
+        {formData.photos && formData.photos.length > 0 ? (
           <img
-            src={URL.createObjectURL(formData.photos[0])}
+            src={URL.createObjectURL(formData.photos[0]) || "/placeholder.svg"}
             alt="Property"
             className="w-full h-48 object-cover"
           />
@@ -428,9 +427,7 @@ const AddProperty = () => {
           {/* Only show rooms if set - updated to use room_count */}
           {formData.room_count && (
             <div className="flex items-center gap-1">
-              <span>
-                {formData.room_count} ოთახი
-              </span>
+              <span>{formData.room_count} ოთახი</span>
             </div>
           )}
         </div>
@@ -450,89 +447,112 @@ const AddProperty = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
-          {formData.photos && formData.photos.map((img, idx) => (
-            <div key={idx} className="relative">
-              <img
-                src={URL.createObjectURL(img)}
-                alt={`Property ${idx + 1}`}
-                className="w-full h-20 object-cover rounded border"
-              />
-              <button
-                type="button"
-                onClick={() => handleRemoveImage(idx)}
-                className="absolute top-1 right-1 bg-red-500 text-white rounded-full px-2 py-0.5 text-xs"
-              >
-                x
-              </button>
-            </div>
-          ))}
+          {formData.photos &&
+            formData.photos.map((img, idx) => (
+              <div key={idx} className="relative">
+                <img
+                  src={URL.createObjectURL(img) || "/placeholder.svg"}
+                  alt={`Property ${idx + 1}`}
+                  className="w-full h-20 object-cover rounded border"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveImage(idx)}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full px-2 py-0.5 text-xs"
+                >
+                  x
+                </button>
+              </div>
+            ))}
         </div>
       </div>
     </div>
   )
 
   // Update handleBuildingSelect to accept buildingId and coordinates
-  const handleBuildingSelect = (buildingId, coordinates) => {
+  const handleBuildingSelect = (buildingId) => {
     // coordinates: [lng, lat]
-    setFormData(prev => ({
+    // we want to throw warning with data of selected building
+    // console.warn('Selected building ID:', buildingId, 'Coordinates:', coordinates);
+    setFormData((prev) => ({
       ...prev,
-      building_id_mapbox: buildingId,
-      latitude: coordinates && coordinates[1] ? String(coordinates[1]) : "",
-      longitude: coordinates && coordinates[0] ? String(coordinates[0]) : ""
+      building_id_mapbox: buildingId['building_id_mapbox'],
+      latitude: buildingId['latitude'],
+      longitude: buildingId['longitude'],
     }))
+    // setCoordinates(coordinates) // Update coordinates state
   }
 
   // Submit handler for the form
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
     // Validate required fields
-    const errors = validateForm();
-    setFormErrors(errors);
+    const errors = validateForm()
+    setFormErrors(errors)
     if (Object.keys(errors).length > 0) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
+      window.scrollTo({ top: 0, behavior: "smooth" })
+      return
     }
 
     // Prepare FormData for binary/image upload
-    const form = new FormData();
+    const form = new FormData()
 
     // List of boolean fields to normalize as 1/0
-    const booleanFields = ['balcony', 'terrace', 'studio', 'penthouse', 'multifloor', 'freeplan'];
+    const booleanFields = ["balcony", "terrace", "studio", "penthouse", "multifloor", "freeplan"]
 
     Object.entries(formData).forEach(([key, value]) => {
-      if (key === "photos") return;
+      if (key === "photos") return
       // Send plan_type booleans and balcony/terrace as 1/0
       if (booleanFields.includes(key)) {
-        form.append(key, value ? 1 : 0);
+        form.append(key, value ? 1 : 0)
       } else {
-        form.append(key, value);
+        form.append(key, value)
       }
-    });
+    })
+
+    // Always append currency, fallback to first option if not set
+    const currencyOptions = propertyConfig.price
+      .find((p) => p.key === "currency")
+      ?.options || []
+    const currencyValue =
+      formData.currency ||
+      (currencyOptions.length > 0 ? currencyOptions[0].value : "GEL")
+    form.append("currency", currencyValue)
+
+    // Always append price_per_square_meter if present
+    if (formData.price_per_square_meter) {
+      form.append("price_per_square_meter", formData.price_per_square_meter)
+    }
 
     if (formData.photos && Array.isArray(formData.photos)) {
       formData.photos.forEach((file, idx) => {
-        form.append("photos[]", file);
-      });
+        form.append("photos[]", file)
+      })
     }
 
-    form.append("listing_type", listingTypeMap[selectedTab] || "");
-    form.append("property_type", selectedPropertyType);
-    if (formData.building_id_mapbox)
-      form.append("building_id_mapbox", String(formData.building_id_mapbox));
+    form.append("listing_type", listingTypeMap[selectedTab] || "")
+    form.append("property_type", selectedPropertyType)
+    if (formData.building_id_mapbox) form.append("building_id_mapbox", String(formData.building_id_mapbox))
+
+    if (coordinates && coordinates.length === 2) {
+      form.append("latitude", String(coordinates[1]))
+      form.append("longitude", String(coordinates[0]))
+    }
 
     try {
-      await axios.post('property', form, {
+      await axios.post("property", form, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      alert('Property submitted successfully!');
-      setFormData({});
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      alert("Property submitted successfully!")
+      setFormData({})
+      setCoordinates(null) // Reset coordinates after successful submission
     } catch (err) {
-      alert('Error submitting property.');
+      alert("Error submitting property.")
     }
-  };
+  }
 
   if (currentStep === "type-selection") {
     return (
@@ -617,7 +637,9 @@ const AddProperty = () => {
           <div className="mt-8">
             {Object.entries(propertyTypes).map(([category, properties]) => (
               <div key={category} className="mb-4">
-                <div className="font-semibold text-gray-700 mb-2">{categoryLabels[category] || getLabel(category, category)}</div>
+                <div className="font-semibold text-gray-700 mb-2">
+                  {categoryLabels[category] || getLabel(category, category)}
+                </div>
                 <div className="flex flex-wrap gap-2">
                   {properties.map((property) => (
                     <button
@@ -649,7 +671,9 @@ const AddProperty = () => {
                   <div className="font-bold mb-2">გთხოვთ შეავსოთ ყველა აუცილებელი ველი:</div>
                   <ul className="list-disc ml-6">
                     {Object.entries(formErrors).map(([key, msg]) => (
-                      <li key={key}>{propertyLabels[key] || key}: {msg}</li>
+                      <li key={key}>
+                        {propertyLabels[key] || key}: {msg}
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -659,16 +683,110 @@ const AddProperty = () => {
                 {propertyConfig.location && renderFormSection("location", propertyConfig.location, "ადგილმდებარეობა")}
                 {/* Map placeholder */}
                 {propertyConfig.location && (
-                  <div className="mb-8">
+                  <div
+                    className={`bg-gray-100 rounded-lg border overflow-hidden relative transition-all duration-300 ${
+                      formData.building_id_mapbox ? "border-2 border-green-500" : ""
+                    }`}
+                    style={
+                      mapExpanded
+                        ? {
+                            position: "fixed",
+                            top: "5%",
+                            left: "5%",
+                            width: "90vw",
+                            height: "90vh",
+                            zIndex: 1000,
+                            background: "#fff",
+                            borderRadius: "16px",
+                            boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+                            overflow: "hidden",
+                            display: "block",
+                          }
+                        : {
+                            width: "100%",
+                            height: "16rem",
+                            display: "block",
+                          }
+                    }
+                  >
+                    {/* Close/Restore button when expanded */}
+                    {mapExpanded && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 12,
+                          right: 16,
+                          zIndex: 2,
+                          background: "rgba(255,255,255,0.95)",
+                          borderRadius: "8px",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
+                          padding: "6px 12px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => setMapExpanded(false)}
+                          style={{
+                            background: "#2196f3",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "6px",
+                            padding: "6px 12px",
+                            fontSize: "16px",
+                            cursor: "pointer",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "6px",
+                          }}
+                        >
+                          <FaCompressArrowsAlt />
+                          დახურვა
+                        </button>
+                      </div>
+                    )}
+                    {/* Resize Icon when not expanded */}
+                    {!mapExpanded && (
+                      <button
+                        type="button"
+                        onClick={() => setMapExpanded(true)}
+                        style={{
+                          position: "absolute",
+                          right: 10,
+                          bottom: 10,
+                          background: "#2196f3",
+                          color: "#fff",
+                          border: "none",
+                          borderRadius: "50%",
+                          width: "38px",
+                          height: "38px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          boxShadow: "0 2px 8px rgba(33,150,243,0.15)",
+                          cursor: "pointer",
+                          zIndex: 2,
+                        }}
+                        title="Expand map"
+                      >
+                        <FaExpandArrowsAlt size={20} />
+                      </button>
+                    )}
+                    {/* Single MapB2BuildingClick instance */}
                     <div
-                      className={`h-64 bg-gray-100 rounded-lg flex items-center justify-center border overflow-hidden ${
-                        formData.building_id_mapbox ? "border-2 border-green-500" : ""
-                      }`}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        position: "relative",
+                      }}
                     >
                       <MapB2BuildingClick onBuildingSelect={handleBuildingSelect} />
                     </div>
                   </div>
                 )}
+
                 {propertyConfig.floor && renderFormSection("floor", propertyConfig.floor, "შენობის მონაცემები")}
                 {propertyConfig.flat_details &&
                   renderFormSection("flat_details", propertyConfig.flat_details, "ბინის მონაცემები")}
@@ -706,7 +824,7 @@ const AddProperty = () => {
                             rows={6}
                             className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-400 transition resize-none"
                           />
-                        ) : null
+                        ) : null,
                       )}
                     </div>
                   </div>
@@ -719,7 +837,7 @@ const AddProperty = () => {
                       {(formData.photos || []).map((img, idx) => (
                         <div key={idx} className="relative">
                           <img
-                            src={URL.createObjectURL(img)}
+                            src={URL.createObjectURL(img) || "/placeholder.svg"}
                             alt={`Property ${idx + 1}`}
                             className="w-full h-32 object-cover rounded-lg border"
                           />
@@ -733,16 +851,8 @@ const AddProperty = () => {
                         </div>
                       ))}
                       {/* Always show an additional input for adding images */}
-                      <label
-                        className="border-2 border-dashed border-gray-300 rounded-lg h-32 flex items-center justify-center cursor-pointer hover:border-blue-400 transition-colors"
-                      >
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="hidden"
-                        />
+                      <label className="border-2 border-dashed border-gray-300 rounded-lg h-32 flex items-center justify-center cursor-pointer hover:border-blue-400 transition-colors">
+                        <input type="file" multiple accept="image/*" onChange={handleImageUpload} className="hidden" />
                         <span className="text-gray-400 text-2xl">+</span>
                       </label>
                     </div>
@@ -799,8 +909,8 @@ const AddProperty = () => {
                       <label className="block text-gray-700 font-medium mb-2">ფასი 1 მ²-ზე</label>
                       <input
                         type="text"
-                        value={formData.square_per_meter || ""}
-                        onChange={(e) => handleInputChange("square_per_meter", e.target.value)}
+                        value={formData.price_per_square_meter || ""}
+                        onChange={(e) => handleInputChange("price_per_square_meter", e.target.value)}
                         placeholder="₾ 1 000"
                         className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-400 transition"
                       />
@@ -810,7 +920,7 @@ const AddProperty = () => {
                         <input
                           type="checkbox"
                           checked={formData.comission || false}
-                          onChange={(e) => handleInputChange("comission", e.target.checked)}
+                          onChange={(e) => handleInputChange("comission", e.target.checked ? 1 : 0)}
                           className="rounded"
                         />
                         <span className="text-gray-700">შეთანხმების საკითხისთვის გარიგება</span>
@@ -824,14 +934,16 @@ const AddProperty = () => {
                     <h3 className="text-lg font-semibold mb-4">კონტაქტები</h3>
                     <p className="text-sm text-gray-600 mb-4">აარჩიეთ აქაუნთის ტიპი Homeinfo-ზე</p>
                     <div className="grid grid-cols-2 gap-4 mb-4">
-                      <label className={`border border-gray-300 rounded-lg p-4 cursor-pointer flex flex-col gap-2 ${formData.is_agent === true ? "ring-2 ring-blue-500" : ""}`}>
+                      <label
+                        className={`border border-gray-300 rounded-lg p-4 cursor-pointer flex flex-col gap-2 ${formData.is_agent === true ? "ring-2 ring-blue-500" : ""}`}
+                      >
                         <div className="flex items-center gap-2 mb-2">
                           <input
                             type="radio"
                             name="is_agent"
                             value="agent"
                             checked={formData.is_agent === true}
-                            onChange={() => setFormData(prev => ({ ...prev, is_agent: true }))}
+                            onChange={() => setFormData((prev) => ({ ...prev, is_agent: true }))}
                             className="accent-blue-600"
                           />
                           <span className="font-medium">აგენტი</span>
@@ -848,14 +960,16 @@ const AddProperty = () => {
                         </div>
                       </label>
 
-                      <label className={`border border-gray-300 rounded-lg p-4 cursor-pointer flex flex-col gap-2 ${formData.is_agent === false ? "ring-2 ring-blue-500" : ""}`}>
+                      <label
+                        className={`border border-gray-300 rounded-lg p-4 cursor-pointer flex flex-col gap-2 ${formData.is_agent === false ? "ring-2 ring-blue-500" : ""}`}
+                      >
                         <div className="flex items-center gap-2 mb-2">
                           <input
                             type="radio"
                             name="is_agent"
                             value="owner"
                             checked={formData.is_agent === false}
-                            onChange={() => setFormData(prev => ({ ...prev, is_agent: false }))}
+                            onChange={() => setFormData((prev) => ({ ...prev, is_agent: false }))}
                             className="accent-blue-600"
                           />
                           <span className="font-medium">მესაკუთრე</span>
@@ -899,11 +1013,11 @@ const AddProperty = () => {
                               : ""
                           }
                           onChange={(e) => {
-                            let val = e.target.value.replace(/\s/g, ""); // remove spaces
-                            if (val.startsWith("+995")) val = val.slice(4); // remove +995 if pasted
-                            val = val.replace(/\D/g, ""); // remove non-digits
-                            if (val.length > 9) val = val.slice(0, 9); // max 9 digits
-                            setFormData(prev => ({ ...prev, contact_phone: val }));
+                            let val = e.target.value.replace(/\s/g, "") // remove spaces
+                            if (val.startsWith("+995")) val = val.slice(4) // remove +995 if pasted
+                            val = val.replace(/\D/g, "") // remove non-digits
+                            if (val.length > 9) val = val.slice(0, 9) // max 9 digits
+                            setFormData((prev) => ({ ...prev, contact_phone: val }))
                           }}
                           placeholder="555 55 55 55"
                           className="flex-1 border border-gray-300 rounded-r-lg px-4 py-3 focus:outline-none focus:border-blue-400 transition"

@@ -62,7 +62,7 @@ const PropertyManagement = () => {
   const [filters, setFilters] = useState({
     listing_type: "",
     property_type: "",
-    status: "",
+    property_status: "",
     city: "",
   })
   const [showFilters, setShowFilters] = useState(false)
@@ -190,7 +190,7 @@ const PropertyManagement = () => {
     setFilters({
       listing_type: "",
       property_type: "",
-      status: "",
+      property_status: "",
       city: "",
     })
   }
@@ -203,10 +203,10 @@ const PropertyManagement = () => {
           property.contact_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           property.city?.toLowerCase().includes(searchTerm.toLowerCase())
 
+        // Use property_status and property_type for filtering
         const matchesFilters =
-          (!filters.listing_type || property.listing_type === filters.listing_type) &&
           (!filters.property_type || property.property_type === filters.property_type) &&
-          (!filters.status || property.status === filters.status) &&
+          (!filters.property_status || property.property_status === filters.property_status) &&
           (!filters.city || property.city?.toLowerCase().includes(filters.city.toLowerCase()))
 
         return matchesSearch && matchesFilters
@@ -220,20 +220,16 @@ const PropertyManagement = () => {
 
   const getPropertyTypeLabel = (type) => {
     const typeLabels = {
-      flat: "Apartment",
-      house: "House",
+      building_complex: "Building Complex",
+      cottage: "Cottage",
       commercial: "Commercial",
-      land: "Land",
-      garage: "Garage",
     }
     return typeLabels[type] || type
   }
 
   const getListingTypeLabel = (type) => {
     const typeLabels = {
-      sell: "For Sale",
-      rent: "For Rent",
-      daily: "Daily Rent",
+      sell: "For Sale"
     }
     return typeLabels[type] || type
   }
@@ -300,20 +296,6 @@ const PropertyManagement = () => {
           <div className="bg-white p-4 rounded-lg border border-gray-200">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Listing Type</label>
-                <select
-                  value={filters.listing_type}
-                  onChange={(e) => handleFilterChange("listing_type", e.target.value)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-purple-500"
-                >
-                  <option value="">All Types</option>
-                  <option value="sell">For Sale</option>
-                  <option value="rent">For Rent</option>
-                  <option value="daily">Daily Rent</option>
-                </select>
-              </div>
-
-              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Property Type</label>
                 <select
                   value={filters.property_type}
@@ -321,26 +303,24 @@ const PropertyManagement = () => {
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-purple-500"
                 >
                   <option value="">All Properties</option>
-                  <option value="flat">Apartment</option>
-                  <option value="house">House</option>
+                  <option value="building_complex">Building Complex</option>
+                  <option value="cottage">Cottage</option>
                   <option value="commercial">Commercial</option>
-                  <option value="land">Land</option>
-                  <option value="garage">Garage</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                 <select
-                  value={filters.status}
-                  onChange={(e) => handleFilterChange("status", e.target.value)}
+                  value={filters.property_status}
+                  onChange={(e) => handleFilterChange("property_status", e.target.value)}
                   className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:border-purple-500"
                 >
                   <option value="">All Status</option>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
+                  <option value="available">Available</option>
                   <option value="sold">Sold</option>
-                  <option value="rented">Rented</option>
+                  <option value="pending">Pending</option>
+                  {/* <option value="rented">Rented</option> */}
                 </select>
               </div>
 
@@ -365,168 +345,168 @@ const PropertyManagement = () => {
         )}
       </div>
 
-      {/* Properties Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Property
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Location
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Details
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Price
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Contact
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+      {/* /* Properties Table */ }
+        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Property
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Location
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Details
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Price
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Contact
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {filteredProperties.map((property) => (
+              <tr key={property.id} className="hover:bg-gray-50">
+            <td className="px-6 py-4 whitespace-nowrap">
+              <div className="flex items-center">
+                <div className="flex-shrink-0 h-12 w-12">
+              {getPhotoArray(property.photos).length > 0 ? (
+                <img
+                  src={getImageUrl(getPhotoArray(property.photos)[0])}
+                  alt="Property"
+                  className="h-12 w-12 rounded-lg object-cover"
+                />
+              ) : (
+                <div className="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center">
+                  <FaHome className="text-purple-600" />
+                </div>
+              )}
+                </div>
+                <div className="ml-4">
+              <div className="text-sm font-medium text-gray-900">
+                {getPropertyTypeLabel(property.property_type)}
+              </div>
+              <div className="text-sm text-gray-500">{getListingTypeLabel(property.listing_type)}</div>
+              <div className="text-xs text-gray-400">ID: {property.id}</div>
+                </div>
+              </div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+              <div className="text-sm text-gray-900">
+                <div className="flex items-center gap-1 mb-1">
+              <FaMapMarkerAlt className="text-xs text-gray-400" />
+              <span>{property.address || "No address"}</span>
+                </div>
+                <div className="text-xs text-gray-500">
+              {property.city && `${property.city}, `}
+              {property.development_name}
+                </div>
+                {property.flat_number && (
+              <div className="text-xs text-gray-500">Flat: {property.flat_number}</div>
+                )}
+              </div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+              <div className="text-sm text-gray-900">
+                <div>{property.total_area}m²</div>
+                <div className="text-xs text-gray-500">
+              {property.room_count} rooms • {property.bedroom_count} bed • {property.bathroom_count} bath
+                </div>
+                {property.floor_number && (
+              <div className="text-xs text-gray-500">
+                Floor {property.floor_number}/{property.total_floors}
+              </div>
+                )}
+              </div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+              <div className="text-sm font-medium text-gray-900">
+                {property.currency} {Number(property.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+              {property.commission && <div className="text-xs text-green-600">Commission</div>}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+              <div className="text-sm text-gray-900">
+                <div className="flex items-center gap-1 mb-1">
+              <FaUser className="text-xs text-gray-400" />
+              <span>{property.contact_name}</span>
+                </div>
+                {property.contact_phone && (
+              <div className="flex items-center gap-1 text-xs text-gray-500">
+                <FaPhone className="text-xs" />
+                <span>{property.contact_phone}</span>
+              </div>
+                )}
+              <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 mt-1">
+                {property.is_agent === 0 ? "მესაკუთრე" : "აგენტი"}
+              </span>
+              </div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap flex justify-center flex-col items-start">
+              <span
+                className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(property.status)}`}
+              >
+                {property.property_status?.toUpperCase()}
+              </span>
+              <div className="text-xs text-gray-500 mt-1">
+                {new Date(property.created_at).toLocaleDateString()}
+              </div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              <div className="flex items-center gap-2">
+                <button
+              onClick={() => handleViewProperty(property)}
+              className="text-blue-600 hover:text-blue-900 p-1"
+              title="View Property"
+                >
+              <FaEye />
+                </button>
+                <button
+              onClick={() => handleEditProperty(property)}
+              className="text-green-600 hover:text-green-900 p-1"
+              title="Edit Property"
+                >
+              <FaEdit />
+                </button>
+                <button
+              onClick={() => handleDeleteProperty(property.id)}
+              className="text-red-600 hover:text-red-900 p-1"
+              title="Delete Property"
+                >
+              <FaTrash />
+                </button>
+              </div>
+            </td>
               </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredProperties.map((property) => (
-                <tr key={property.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-12 w-12">
-                        {getPhotoArray(property.photos).length > 0 ? (
-                          <img
-                            src={getImageUrl(getPhotoArray(property.photos)[0])}
-                            alt="Property"
-                            className="h-12 w-12 rounded-lg object-cover"
-                          />
-                        ) : (
-                          <div className="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center">
-                            <FaHome className="text-purple-600" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {getPropertyTypeLabel(property.property_type)}
-                        </div>
-                        <div className="text-sm text-gray-500">{getListingTypeLabel(property.listing_type)}</div>
-                        <div className="text-xs text-gray-400">ID: {property.id}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      <div className="flex items-center gap-1 mb-1">
-                        <FaMapMarkerAlt className="text-xs text-gray-400" />
-                        <span>{property.address || "No address"}</span>
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {property.city && `${property.city}, `}
-                        {property.development_name}
-                      </div>
-                      {property.flat_number && (
-                        <div className="text-xs text-gray-500">Flat: {property.flat_number}</div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      <div>{property.total_area}m²</div>
-                      <div className="text-xs text-gray-500">
-                        {property.room_count} rooms • {property.bedroom_count} bed • {property.bathroom_count} bath
-                      </div>
-                      {property.floor_number && (
-                        <div className="text-xs text-gray-500">
-                          Floor {property.floor_number}/{property.total_floors}
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      {property.currency} {property.price?.toLocaleString()}
-                    </div>
-                    {property.commission && <div className="text-xs text-green-600">Commission</div>}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      <div className="flex items-center gap-1 mb-1">
-                        <FaUser className="text-xs text-gray-400" />
-                        <span>{property.contact_name}</span>
-                      </div>
-                      {property.contact_phone && (
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                          <FaPhone className="text-xs" />
-                          <span>{property.contact_phone}</span>
-                        </div>
-                      )}
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 mt-1">
-                          {property.is_agent === 0 ? "მესაკუთრე" : "აგენტი"}
-                        </span>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(property.status)}`}
-                    >
-                      {property.status?.toUpperCase()}
-                    </span>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {new Date(property.created_at).toLocaleDateString()}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleViewProperty(property)}
-                        className="text-blue-600 hover:text-blue-900 p-1"
-                        title="View Property"
-                      >
-                        <FaEye />
-                      </button>
-                      <button
-                        onClick={() => handleEditProperty(property)}
-                        className="text-green-600 hover:text-green-900 p-1"
-                        title="Edit Property"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteProperty(property.id)}
-                        className="text-red-600 hover:text-red-900 p-1"
-                        title="Delete Property"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            ))}
+          </tbody>
+            </table>
+          </div>
+
+          {filteredProperties.length === 0 && (
+            <div className="text-center py-12">
+          <FaHome className="mx-auto h-12 w-12 text-gray-400" />
+          <h3 className="mt-2 text-sm font-medium text-gray-900">No properties found</h3>
+          <p className="mt-1 text-sm text-gray-500">
+            {searchTerm || Object.values(filters).some((f) => f)
+              ? "Try adjusting your search or filters."
+              : "Get started by creating a new property."}
+          </p>
+            </div>
+          )}
         </div>
 
-        {filteredProperties.length === 0 && (
-          <div className="text-center py-12">
-            <FaHome className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No properties found</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              {searchTerm || Object.values(filters).some((f) => f)
-                ? "Try adjusting your search or filters."
-                : "Get started by creating a new property."}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Property Modal */}
+        {/* Property Modal */}
       {showModal && (
         <PropertyModal
           property={selectedProperty}
@@ -674,11 +654,11 @@ const PropertyModal = ({ property, users, type, onSave, onClose }) => {
                       disabled={isReadOnly}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-purple-500 disabled:bg-gray-100"
                     >
-                      <option value="flat">Apartment</option>
-                      <option value="house">House</option>
+                      <option value="building_complex">Complex</option>
+                      <option value="cottage">Cottage</option>
                       <option value="commercial">Commercial</option>
-                      <option value="land">Land</option>
-                      <option value="garage">Garage</option>
+                      {/* <option value="land">Land</option> */}
+                      {/* <option value="garage">Garage</option> */}
                     </select>
                   </div>
 

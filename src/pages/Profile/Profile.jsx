@@ -409,7 +409,13 @@ const Profile = () => {
             <div className="text-center">
               <div className="relative inline-block">
                 <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 mx-auto relative">
-                  {authUser?.user_information?.profile_image_url ? (
+                  {imagePreview ? (
+                    <img 
+                      src={imagePreview} 
+                      alt="Profile" 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : authUser?.user_information?.profile_image_url ? (
                     <img 
                       src={authUser.user_information.profile_image_url} 
                       alt="Profile" 
@@ -421,19 +427,23 @@ const Profile = () => {
                     </div>
                   )}
                 </div>
-                <button 
-                  className="absolute bottom-0 right-0 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition"
-                  onClick={() => fileInputRef.current.click()}
-                >
-                  <FiCamera />
-                </button>
-                <input 
-                  type="file" 
-                  ref={fileInputRef}
-                  onChange={handleImageChange}
-                  accept="image/*"
-                  className="hidden"
-                />
+                {editMode && (
+                  <>
+                    <button 
+                      className="absolute bottom-0 right-0 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition"
+                      onClick={() => fileInputRef.current.click()}
+                    >
+                      <FiCamera />
+                    </button>
+                    <input 
+                      type="file" 
+                      ref={fileInputRef}
+                      onChange={handleImageChange}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                  </>
+                )}
               </div>
               <h2 className="mt-4 text-xl font-semibold text-gray-800">
                 {authUser.name || "User Profile"}

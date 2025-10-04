@@ -45,27 +45,27 @@ const BuildingCompanies = () => {
         specialization: ["Residential", "Commercial"],
         featured: true,
       },
-      {
-        id: 2,
-        name: "Next Group",
-        nameEng: "Next Group",
-        logo: "/images/next.svg",
-        priceFrom: 4717,
-        projectCount: 8,
-        projects: ["Tbilisi Downtown", "Next Saburtalo", "Next Dighomi"],
-        rating: 4.6,
-        completedProjects: 6,
-        location: "თბილისი",
-        established: 2015,
-        specialization: ["Luxury", "Commercial"],
-        featured: true,
-      },
-      // More companies would be loaded from the API
+    //   {
+    //     id: 2,
+    //     name: "Next Group",
+    //     nameEng: "Next Group",
+    //     logo: "/images/next.svg",
+    //     priceFrom: 4717,
+    //     projectCount: 8,
+    //     projects: ["Tbilisi Downtown", "Next Saburtalo", "Next Dighomi"],
+    //     rating: 4.6,
+    //     completedProjects: 6,
+    //     location: "თბილისი",
+    //     established: 2015,
+    //     specialization: ["Luxury", "Commercial"],
+    //     featured: true,
+    //   },
+    //   // More companies would be loaded from the API
     ]);
 
     // In a real implementation, use axios:
     // defaultInstance.get('/admin/building-companies')
-    //   .then(response => setCompanies(response.data))
+    //   .then(response => setCompanies(response.data.data))
     //   .catch(error => console.error('Error fetching companies:', error));
   }, []);
 
@@ -165,35 +165,25 @@ const BuildingCompanies = () => {
     formData.append('phone', editingCompany.phone);
     formData.append('email', editingCompany.email);
     formData.append('website', editingCompany.website);
-    
+
     // Only append logo if it's a File object (not a string URL)
     if (editingCompany.logo instanceof File) {
       formData.append('logo', editingCompany.logo);
     }
-    
+
     if (isAddingNew) {
-      // For demo, create a simplified version to add to the list
-      const newCompany = {
-        ...editingCompany,
-        id: Date.now(),
-        priceFrom: 0,
-        projectCount: 0,
-        projects: [],
-        rating: 0,
-        completedProjects: 0,
-        location: "თბილისი",
-        established: new Date().getFullYear(),
-        specialization: [],
-        featured: false,
-        logo: logoPreview // Use preview URL for demo
-      };
-      
-      setCompanies([...companies, newCompany]);
-      
-    //   In real app, use API call with FormData:
+      // Only add to local state if backend returns 201 and data
       defaultInstance.post('/admin/building-companies', formData)
         .then(response => {
-          setCompanies([...companies, response.data]);
+          if (response.status === 201 && response.data) {
+            setCompanies([...companies, response.data]);
+          }
+          setIsEditing(false);
+          setEditingCompany(null);
+          setLogoPreview(null);
+        })
+        .catch(() => {
+          // Optionally handle error, e.g. show notification
         });
     } else {
       // For demo, update the company with simplified data
@@ -207,19 +197,16 @@ const BuildingCompanies = () => {
           } : company
         )
       );
-      
-      // In real app, use API call with FormData:
       defaultInstance.put(`/admin/building-companies/${editingCompany.id}`, formData)
         .then(response => {
           setCompanies(companies.map(company => 
             company.id === editingCompany.id ? response.data : company
           ));
         });
+      setIsEditing(false);
+      setEditingCompany(null);
+      setLogoPreview(null);
     }
-    
-    setIsEditing(false);
-    setEditingCompany(null);
-    setLogoPreview(null);
   };
 
   // Handle deleting a company
@@ -384,8 +371,8 @@ const BuildingCompanies = () => {
                     <td className="px-4 py-4">
                       <div className="flex items-center">
                         <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
-                          {company.logo ? (
-                            <img src={company.logo} alt={company.name} className="w-8 h-8 object-contain" />
+                          {company.logo_url ? (
+                            <img src={company.logo_url} alt={company.name} className="w-8 h-8 object-contain" />
                           ) : (
                             <Building2 className="w-5 h-5 text-gray-400" />
                           )}

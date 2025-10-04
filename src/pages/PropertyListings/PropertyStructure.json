@@ -114,25 +114,27 @@
                                     "flat_details": [
                                         { 
                                             "plan_type": [
-                                                
+                                                { "key": "studio", "type": "boolean", "label": "Studio" },
+                                                { "key": "multifloor", "type": "boolean", "label": "Multiple floor" },
+                                                { "key": "freeplan", "type": "boolean", "label": "Free plan" }
                                             ],
                                             "room_count": [
-                                                { "key": "rooms_1", "type": "select", "label": "1 Room", "options": [1] },
-                                                { "key": "rooms_2", "type": "select", "label": "2 Rooms", "options": [2] },
-                                                { "key": "rooms_3", "type": "select", "label": "3 Rooms", "options": [3] },
-                                                { "key": "rooms_4", "type": "select", "label": "4 Rooms", "options": [4] },
-                                                { "key": "rooms_5plus", "type": "select", "label": "5+ Rooms", "options": ["5+"] }
+                                                { "key": "1", "type": "select", "label": "1", "options": [1] },
+                                                { "key": "2", "type": "select", "label": "2", "options": [2] },
+                                                { "key": "3", "type": "select", "label": "3", "options": [3] },
+                                                { "key": "4", "type": "select", "label": "4", "options": [4] },
+                                                { "key": "5+", "type": "select", "label": "5+", "options": ["5+"] }
                                             ],
                                             "bedroom_count": [
-                                                { "key": "bedrooms_1", "type": "select", "label": "1 Bedroom", "options": [1] },
-                                                { "key": "bedrooms_2", "type": "select", "label": "2 Bedrooms", "options": [2] },
-                                                { "key": "bedrooms_3", "type": "select", "label": "3 Bedrooms", "options": [3] },
-                                                { "key": "bedrooms_4plus", "type": "select", "label": "4+ Bedrooms", "options": ["4+"] }
+                                                { "key": "1", "type": "select", "label": "1", "options": [1] },
+                                                { "key": "2", "type": "select", "label": "2", "options": [2] },
+                                                { "key": "3", "type": "select", "label": "3", "options": [3] },
+                                                { "key": "4+", "type": "select", "label": "4+", "options": ["4+"] }
                                             ],
                                             "bathroom_count": [
-                                                { "key": "bathrooms_1", "type": "select", "label": "1 Bathroom", "options": [1] },
-                                                { "key": "bathrooms_2", "type": "select", "label": "2 Bathrooms", "options": [2] },
-                                                { "key": "bathrooms_3plus", "type": "select", "label": "3+ Bathrooms", "options": ["3+"] }
+                                                { "key": "1", "type": "select", "label": "1", "options": [1] },
+                                                { "key": "2", "type": "select", "label": "2", "options": [2] },
+                                                { "key": "3+", "type": "select", "label": "3+", "options": ["3+"] }
                                             ]
                                         },
                                         { "key": "total_area", "type": "number", "label": "Total Area (sq.m)" , "required": true },
