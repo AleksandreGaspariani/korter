@@ -15,7 +15,7 @@ const PromotionalSection = ({ totalCottage, totalComplex, totalCommercial }) => 
   ]
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4 md:px-12">
+    <div className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-8 px-4 md:px-12" style={{ borderRadius: '20px' }}>
       {/* Top section */}
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         {/* Left Card - Main Promotional */}
@@ -67,13 +67,13 @@ const PromotionalSection = ({ totalCottage, totalComplex, totalCommercial }) => 
       </div>
 
       {/* Carousel Section */}
-      <div className="relative">
+      <div className="relative" style={{ borderRadius: '20px' }}>
         <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">კატეგორიები</h3>
         {/* Enhanced gradient masks */}
         <div className="pointer-events-none absolute top-0 left-0 w-16 h-full bg-gradient-to-r from-blue-50 via-blue-50/80 to-transparent z-0" />
         <div className="pointer-events-none absolute top-0 right-0 w-16 h-full bg-gradient-to-l from-blue-50 via-blue-50/80 to-transparent z-0" />
-        <div className="overflow-x-auto scrollbar-hide relative z-10">
-          <div className="flex space-x-4 px-2 pb-2">
+        <div className="overflow-x-auto scrollbar-hide relative z-10 py-5">
+          <div className="flex justify-start space-x-4 px-2 pb-2">
             {carouselItems.map((item, index) => {
               const IconComponent = item.icon;
               // Map card title to route
