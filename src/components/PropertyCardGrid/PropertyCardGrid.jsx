@@ -6,14 +6,13 @@ import defaultInstance from '../../plugins/axios';
 const PropertyCard = ({ property, apiUri }) => {
   // Parse photos JSON string and get first image
 
-  const storage = import.meta.env.VITE_APP_URI + '/storage/';
   property.first_image = property.photos ? JSON.parse(property.photos)[0] : null;
 
   return (
     <Link to={`/property/${property.id}`}>
       <div className="bg-white border rounded-xl shadow-sm hover:shadow-md transition cursor-pointer">
         <div className="relative">
-          <img src={`${storage}${property.first_image}`} alt={property.development_name} className="w-full h-48 object-cover rounded-t-xl" />
+          <img src={`${property.first_image}`} alt={property.development_name} className="w-full h-48 object-cover rounded-t-xl" />
           <FaHeart className="absolute top-3 right-3 text-gray-600 hover:text-red-500 cursor-pointer" />
         </div>
         <div className="p-4 space-y-1">
