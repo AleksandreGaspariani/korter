@@ -28,7 +28,7 @@ const FloorPlanManager = ({ property, onClose }) => {
     total_price: "",
     total_area: "",
     living_area: "",
-    has_balcony: false,
+    has_balcony: 0,
     floor: "",
     bathroom_count: "",
     availability: "available",
@@ -46,7 +46,25 @@ const FloorPlanManager = ({ property, onClose }) => {
     try {
       setLoading(true)
       const response = await defaultInstance.get(`/property/${property.id}/floor-plans`)
-      setFloorPlans(Array.isArray(response.data) ? response.data : [])
+      // Map response to ensure images array exists
+      const plans = Array.isArray(response.data.floor_plans)
+        ? response.data.floor_plans.map(plan => ({
+            ...plan,
+            images: plan.images
+              ? plan.images
+              : plan.image
+                ? (() => {
+                    try {
+                      const arr = JSON.parse(plan.image)
+                      return Array.isArray(arr) ? arr : []
+                    } catch {
+                      return []
+                    }
+                  })()
+                : [],
+          }))
+        : []
+      setFloorPlans(plans)
     } catch (error) {
       console.error("Error fetching floor plans:", error)
       setFloorPlans([])
@@ -59,7 +77,12 @@ const FloorPlanManager = ({ property, onClose }) => {
     const { name, value, type, checked } = e.target
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]:
+        type === "checkbox"
+          ? name === "has_balcony"
+            ? checked ? 1 : 0
+            : checked
+          : value,
     }))
   }
 
@@ -151,7 +174,7 @@ const FloorPlanManager = ({ property, onClose }) => {
       total_price: plan.total_price || "",
       total_area: plan.total_area || "",
       living_area: plan.living_area || "",
-      has_balcony: plan.has_balcony || false,
+      has_balcony: plan.has_balcony || 0,
       floor: plan.floor || "",
       bathroom_count: plan.bathroom_count || "",
       availability: plan.availability || "available",
@@ -180,6 +203,8 @@ const FloorPlanManager = ({ property, onClose }) => {
   const viewDetails = (plan) => {
     setSelectedPlan(plan)
   }
+
+  console.log('plan ', selectedPlan)
 
   const closeDetails = () => {
     setSelectedPlan(null)
@@ -262,7 +287,8 @@ const FloorPlanManager = ({ property, onClose }) => {
                             <img
                               src={`${API_URI}/storage/${img}`}
                               alt={`Floor plan ${idx + 1}`}
-                              className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200"
+                              className="w-32 h-32 rounded-lg border-2 border-gray-200"
+                              style={{ objectFit: 'contain' }}
                             />
                             <button
                               onClick={() => removeExistingImage(idx)}
@@ -278,7 +304,7 @@ const FloorPlanManager = ({ property, onClose }) => {
                           <img
                             src={url || "/placeholder.svg"}
                             alt={`New ${idx + 1}`}
-                            className="w-32 h-32 object-cover rounded-lg border-2 border-blue-300"
+                            className="w-32 h-32 object-contain rounded-lg border-2 border-blue-300"
                           />
                           <button
                             onClick={() => removeImage(idx)}
@@ -480,7 +506,7 @@ const FloorPlanManager = ({ property, onClose }) => {
                           <img
                             src={`${API_URI}/storage/${plan.images[0]}`}
                             alt="Floor plan"
-                            className="w-full h-full object-cover cursor-pointer"
+                            className="w-full h-full object-contain cursor-pointer"
                             onClick={() => viewDetails(plan)}
                           />
                         ) : (
@@ -569,7 +595,7 @@ const FloorPlanManager = ({ property, onClose }) => {
                         key={idx}
                         src={`${API_URI}/storage/${img}`}
                         alt={`Floor plan ${idx + 1}`}
-                        className="w-full h-48 object-cover rounded-lg border border-gray-200"
+                        className="w-full h-48 object-contain rounded-lg border border-gray-200"
                       />
                     ))}
                   </div>
