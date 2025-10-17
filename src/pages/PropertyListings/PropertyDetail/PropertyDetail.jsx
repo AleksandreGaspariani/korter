@@ -108,9 +108,8 @@ const PropertyDetail = ({ id: propId, onBack }) => {
         photosArr = [];
       }
     }
-    propertyImages = photosArr.map(
-      (img) => `${import.meta.env.VITE_APP_URI}/storage/${img}`
-    );
+    // Use the full links directly, do not reconstruct with /storage/
+    propertyImages = photosArr;
   }
 
   const nextImage = () => {
