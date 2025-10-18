@@ -20,44 +20,7 @@ import defaultInstance from "../../../plugins/axios"
 import defAgentImage from '../../../../public/images/agent.webp'
 
 // Dummy properties array
-const properties = [
-  {
-    id: 1,
-    image: '../../../images/flat1.jpg',
-    title: 'მეფე მირიანის ქუჩა, 98',
-    district: 'საბურთალო',
-    price: '99 969 ₾-დან',
-    perM2: '2 840 ₾/მ²-ზე',
-    developer: 'მალაყოს',
-  },
-  {
-    id: 2,
-    image: '../../../images/flat2.jpg',
-    title: 'ალბლების ქ., 39',
-    district: 'ისანი',
-    price: 'ფასი მოცემულია',
-    perM2: '2 488 ₾/მ²-ზე',
-    developer: 'K3 დეველოპმენტი',
-  },
-  {
-    id: 3,
-    image: '../../../images/flat3.jpg',
-    title: 'მოსკოვის გამზირი, 9ა',
-    district: 'ისანი',
-    price: '205 834 ₾-დან',
-    perM2: '2 975 ₾/მ²-ზე',
-    developer: 'New Line Construction',
-  },
-  {
-    id: 4,
-    image: '../../../images/flat4.png',
-    title: 'Pillar Park Samgori',
-    district: 'კახეთის გზატკეცილი 1ა',
-    price: 'ფასი მოცემულია',
-    perM2: '3 245 ₾/მ²-ზე',
-    developer: 'Pillar Group, Pillar Park',
-  },
-]
+
 
 const PropertyDetail = ({ id: propId, onBack }) => {
 
@@ -70,7 +33,7 @@ const PropertyDetail = ({ id: propId, onBack }) => {
   // Fetch property details from API
   useEffect(() => {
     if (id) {
-      defaultInstance.get(`/property/${id}`).then(response => {
+      defaultInstance.get(`/property-info/${id}`).then(response => {
         // If response.data is an array, take the first item
         const prop = response.data.data;
         console.log("Fetched Property Data:", prop);
@@ -306,15 +269,15 @@ const PropertyDetail = ({ id: propId, onBack }) => {
                 <div>
                   <p className="text-sm text-gray-600 mb-1">მთლიანობაში ბინები</p>
                   <p className="text-xl font-bold text-gray-900">
-                    {selectedProperty?.price 
-                      ? `${formatNumber(selectedProperty.price)} ${getCurrencySymbol(selectedProperty?.currency)} -დან` 
+                    {selectedProperty?.price
+                      ? `${formatNumber(selectedProperty.price)} ${getCurrencySymbol(selectedProperty?.currency)} -დან`
                       : "არ არის მოცემული"}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-1">ფასი მ²-ზე</p>
                   <p className="text-xl font-bold text-gray-900">
-                    {selectedProperty?.square_per_meter 
+                    {selectedProperty?.square_per_meter
                       ? `${formatNumber(selectedProperty.square_per_meter)} ${getCurrencySymbol(selectedProperty?.currency)}`
                       : "არ არის მოცემული"}
                   </p>
@@ -323,15 +286,25 @@ const PropertyDetail = ({ id: propId, onBack }) => {
             </div>
 
             {/* Developer */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <div className="flex items-center mb-3">
-                <FiHome className="mr-2 text-blue-600" size={16} />
-                <span className="text-sm text-gray-600">საშენებლო კომპანია</span>
+            {selectedProperty?.developer ? (
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <div className="flex items-center mb-3">
+                  <FiHome className="mr-2 text-blue-600" size={16} />
+                  <span className="text-sm text-gray-600">სამშენებლო კომპანია</span>
+                </div>
+                <a href="#" className="text-blue-600 hover:text-blue-800 font-medium underline transition-colors">
+                  {selectedProperty?.developer.name || "Apart Development"}
+                </a>
               </div>
-              <a href="#" className="text-blue-600 hover:text-blue-800 font-medium underline transition-colors">
-                {selectedProperty?.developer || "Apart Development"}
-              </a>
-            </div>
+            ) : (
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <div className="flex items-center mb-3">
+                  <FiHome className="mr-2 text-blue-600" size={16} />
+                  <span className="text-sm text-gray-600">სამშენებლო კომპანია</span>
+                </div>
+                <span className="text-gray-600">არ არის მოცემული</span>
+              </div>
+            )}
 
             {/* Agent Contact */}
             <div className="bg-white rounded-xl shadow-lg p-6">
@@ -342,8 +315,8 @@ const PropertyDetail = ({ id: propId, onBack }) => {
                   className="w-12 h-12 rounded-full object-cover mr-3"
                 />
                 <div>
-                  <h3 className="font-semibold text-gray-900">{selectedProperty?.user?.name}</h3>
-                  <p className="text-sm text-gray-600">{selectedProperty?.user?.bio}</p>
+                  <h3 className="font-semibold text-gray-900">{selectedProperty?.contact_name ? selectedProperty?.contact_name : selectedProperty?.user?.name}</h3>
+                  <p className="text-sm text-gray-600">{selectedProperty?.user?.user_information?.bio}</p>
                 </div>
               </div>
 
@@ -354,7 +327,7 @@ const PropertyDetail = ({ id: propId, onBack }) => {
                 >
                   <FiPhone className="mr-2" size={18} />
                   {showPhoneNumber 
-                    ? (selectedProperty?.user?.user_information?.phone || "No phone number available") 
+                    ? (selectedProperty?.contact_phone || "No phone number available")
                     : "ნომრის ჩვენება"}
                 </button>
 

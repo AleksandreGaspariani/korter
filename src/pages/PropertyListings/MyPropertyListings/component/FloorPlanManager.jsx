@@ -45,7 +45,7 @@ const FloorPlanManager = ({ property, onClose }) => {
   const fetchFloorPlans = async () => {
     try {
       setLoading(true)
-      const response = await defaultInstance.get(`/property/${property.id}/floor-plans`)
+      const response = await defaultInstance.get(`/property-info/floor/${property.id}/floor-plans`)
       // Map response to ensure images array exists
       const plans = Array.isArray(response.data.floor_plans)
         ? response.data.floor_plans.map(plan => ({

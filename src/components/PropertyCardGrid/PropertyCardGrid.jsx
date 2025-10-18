@@ -43,7 +43,7 @@ const PropertyCardGrid = () => {
   const apiUri = import.meta.env.VITE_APP_URI;
 
   const fetchProperties = () => {
-    defaultInstance.get('/property').then(response => {
+    defaultInstance.get('/dashboard/properties').then(response => {
       setPropertyData(response.data.data);
     }).catch(error => {
       console.error('Error fetching properties:', error);

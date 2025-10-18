@@ -11,6 +11,7 @@ const Dashboard = () => {
   const [cottage, setCottage] = useState('Loading...')
   const [complex, setComplex] = useState('Loading...')
   const [commercial, setCommercial] = useState('Loading...')
+  const [properties , setProperties] = useState([])
 
   const user = useAuthUser()
   // console.log('Authenticated user:', user)
@@ -18,7 +19,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchPropertyCounts = async () => {
       try {
-        const response = await defaultInstance.get('/dashboard')
+        const response = await defaultInstance.get('/dashboard/counts')
         const data = response.data
         setCottage(data.totalCottages || 0)
         setComplex(data.totalBuildingComplexes || 0)

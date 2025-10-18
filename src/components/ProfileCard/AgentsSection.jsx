@@ -74,9 +74,9 @@ const agents = [
 const AgentsSection = () => {
 
   const [agents, setAgents] = useState([]);
-  const apiUri = import.meta.env.VITE_APP_URI;
+  // const apiUri = import.meta.env.VITE_APP_URI;
   React.useEffect(() => {
-    defaultInstance.get('/agents')
+    defaultInstance.get('/dashboard/agents')
       .then(response => {
         setAgents(response.data.data);
       })
@@ -85,7 +85,7 @@ const AgentsSection = () => {
       });
   }, []);
 
-  const storage = import.meta.env.VITE_APP_URI + '/storage/';
+  // const storage = import.meta.env.VITE_APP_URI + '/storage/';
   
 
   return (

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useAuthUser } from '../redux/useAuthUser';
 
 const defaultInstance = axios.create({
-    baseURL: 'http://139.59.209.98/api/', // Replace with your API base URL
+    baseURL: import.meta.env.VITE_API_URI,
     timeout: 10000,
     headers: {
         Accept: "application/json",
